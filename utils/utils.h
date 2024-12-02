@@ -19,6 +19,9 @@
 
 #include <boost/iostreams/device/mapped_file.hpp>
 #include "ctre.hpp" // Assuming this is where the ctre namespace is defined
+#include "fmt/core.h"
+
+#include "timer.h"
 
 namespace aoc_utils {
 
@@ -84,6 +87,22 @@ namespace aoc_utils {
         }
         if (start < input.size()) {
             tokens.push_back(input.substr(start));
+        }
+        return tokens;
+    }
+
+    template <typename T>
+    std::vector<T> tokenize(const std::string& input, const std::string& delimiters, std::function<T(const std::string&)> convert = [](const std::string& s) { return s; }) {
+        std::vector<T> tokens;
+        size_t start = 0, end = 0;
+        while ((end = input.find_first_of(delimiters, start)) != std::string::npos) {
+            if (end != start) {
+                tokens.push_back(convert(input.substr(start, end - start)));
+            }
+            start = end + 1;
+        }
+        if (start < input.size()) {
+            tokens.push_back(convert(input.substr(start)));
         }
         return tokens;
     }

@@ -13,13 +13,15 @@ FetchContent_MakeAvailable(ctre)
 # Find necessary packages
 find_package(Boost REQUIRED COMPONENTS iostreams)
 find_package(GTest CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 # Create an INTERFACE library for header-only code
 add_library(utils INTERFACE)
 
 # Link the required libraries
 target_link_libraries(utils 
-    INTERFACE 
+    INTERFACE
+        fmt::fmt
         ctre::ctre 
         Boost::iostreams
         GTest::gtest 

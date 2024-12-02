@@ -12,7 +12,7 @@ endif()
 project ("AOC2024" CXX)
 
 # Add source to this project's executable.
-add_executable (AOC2024 "AOC2024.cpp" "AOC2024.h")
+add_executable (AOC2024 "AOC2024.cpp" "AOC2024.h" "utils/timer.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET AOC2024 PROPERTY CXX_STANDARD 20)
