@@ -3,6 +3,9 @@ cmake_minimum_required (VERSION 3.8)
 add_executable(day2 day2.cpp)
 target_link_libraries(day2 PUBLIC utils)
 
+add_executable(day2bw "day2-bitwise.cpp")
+target_link_libraries(day2bw PUBLIC utils)
+
 add_custom_command(
     TARGET day2 PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
