@@ -2,35 +2,10 @@
 
 int main() {
 
-	aoc_utils::Timer t;
-
-	aoc_utils::timer_config input_timer_config{
-		.id = 0,
-		.units = "microseconds",
-		.label = "Input",
-		.description = "Read input from file and parse into uint64_t",
-	};
-
-	aoc_utils::timer_config p1_timer_config{
-		.id = 1,
-		.units = "microseconds",
-		.label = "Part 1",
-		.description = "Compute part 1",
-	};
-
-	aoc_utils::timer_config p2_timer_config{
-		.id = 2,
-		.units = "microseconds",
-		.label = "Part 2",
-		.description = "Compute part 2",
-	};
+	INITIALIZE_AOC_TIMERS();
 
 
-	t.create_timer(input_timer_config);
-	t.create_timer(p1_timer_config);
-	t.create_timer(p2_timer_config);
-
-	t.begin(0);
+	default_timer.begin(0);
 
     std::vector<std::vector<int>> in = aoc_utils::read_lines_mmap<std::vector<int>>("input.txt", [&](const std::string& line) {
 		std::vector<std::string> s = aoc_utils::tokenize(line, " ");
@@ -41,7 +16,7 @@ int main() {
 		return v;
 		});
 
-	t.end(0);
+	default_timer.end(0);
 
 	/*for(auto& v : in) {
 		for(int i : v) {
@@ -63,17 +38,17 @@ int main() {
 		};
 
 
-	t.begin(1);
+	default_timer.begin(1);
 
 	int p1 = std::reduce(in.begin(), in.end(), 0, [&is_valid](int acc, const std::vector<int>& v) {
 		return acc + is_valid(v);
 		});
 
-	t.end(1);
+	default_timer.end(1);
 
 	std::cout<<"PART 1: "<<p1<<'\n';
 
-	t.begin(2);
+	default_timer.begin(2);
 
 	int p2 = std::reduce(in.begin(), in.end(), 0, [&is_valid](int acc, std::vector<int>& v) {
 		// Gross brute force
@@ -92,13 +67,13 @@ int main() {
 		
 		});
 
-	t.end(2);
+	default_timer.end(2);
 
 
 	std::cout<<"PART 2: "<<p2<<'\n';
 
 
-	t.display_all();
+	default_timer.display_all();
 
 
 }

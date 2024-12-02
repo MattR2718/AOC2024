@@ -52,35 +52,9 @@ bool is_safe(uint64_t value) {
 
 int main() {
 
-    aoc_utils::Timer t;
+    INITIALIZE_AOC_TIMERS();
 
-    aoc_utils::timer_config input_timer_config{
-        .id = 0,
-        .units = "microseconds",
-        .label = "Input",
-        .description = "Read input from file and parse into uint64_t",
-    };
-
-    aoc_utils::timer_config p1_timer_config{
-        .id = 1,
-        .units = "microseconds",
-        .label = "Part 1",
-        .description = "Compute part 1",
-    };
-
-    aoc_utils::timer_config p2_timer_config{
-        .id = 2,
-        .units = "microseconds",
-        .label = "Part 2",
-        .description = "Compute part 2",
-    };
-
-
-	t.create_timer(input_timer_config);
-    t.create_timer(p1_timer_config);
-    t.create_timer(p2_timer_config);
-
-	t.begin(0);
+    default_timer.begin(0);
 
 	std::vector<uint64_t> in = aoc_utils::read_lines_mmap<uint64_t>("input.txt", [&](const std::string& line) {
 		std::vector<uint32_t> ns = aoc_utils::tokenize<uint32_t>(line, " ", [](const std::string& s) { return std::stoull(s); });
@@ -98,18 +72,18 @@ int main() {
 		return v;
 		});
 
-	t.end(0);
+    default_timer.end(0);
 
 
-    t.begin(1);
+    default_timer.begin(1);
 	int p1 = std::reduce(std::execution::seq, in.begin(), in.end(), 0, [](int acc, const uint64_t& n) { return acc + is_safe(n); });
-    t.end(1);
+    default_timer.end(1);
 
 	std::cout << "PART 1: " << p1 << '\n';
 
 
 
-	t.begin(2);
+    default_timer.begin(2);
 
     int p2 = std::reduce(std::execution::seq, in.begin(), in.end(), 0, [](int acc, uint64_t v) {
         if (is_safe(v)) {
@@ -136,7 +110,7 @@ int main() {
         return acc;
         });
 
-	t.end(2);
+    default_timer.end(2);
 
 
     std::cout << "PART 2: " << p2 << '\n';
@@ -144,7 +118,7 @@ int main() {
 
 
 
-    t.display_all();
+    default_timer.display_all();
 
 }
 

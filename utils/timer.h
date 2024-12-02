@@ -9,6 +9,30 @@
 #include "fmt/core.h"
 #include "fmt/color.h"
 
+#define INITIALIZE_AOC_TIMERS() \
+    aoc_utils::Timer default_timer; \
+    aoc_utils::timer_config input_timer_config = { \
+        .id = 0, \
+        .units = "microseconds", \
+        .label = "Input", \
+        .description = "Read input from file and parse into uint64_t" \
+    }; \
+    aoc_utils::timer_config p1_timer_config = { \
+        .id = 1, \
+        .units = "microseconds", \
+        .label = "Part 1", \
+        .description = "Compute part 1" \
+    }; \
+    aoc_utils::timer_config p2_timer_config = { \
+        .id = 2, \
+        .units = "microseconds", \
+        .label = "Part 2", \
+        .description = "Compute part 2" \
+    }; \
+    default_timer.create_timer(input_timer_config); \
+    default_timer.create_timer(p1_timer_config); \
+    default_timer.create_timer(p2_timer_config);
+
 namespace aoc_utils {
 
     struct timer_config {
