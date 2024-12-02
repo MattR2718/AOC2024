@@ -20,7 +20,8 @@ int main() {
 
 	int p1 = std::transform_reduce(std::execution::par, a.begin(), a.end(), b.begin(), 0, std::plus<>(), [](int a, int b) { return std::abs(a - b); });
 
-	int p2 = std::reduce(std::execution::par, a.begin(), a.end(), 0, [&m_arr](int acc, int v) { return acc + v * m_arr[v]; });
+	//int p2 = std::reduce(std::execution::par, a.begin(), a.end(), 0, [&m_arr](int acc, int v) { return acc + v * m_arr[v]; });
+	int p2 = std::reduce(std::execution::seq, a.begin(), a.end(), 0, [&m_arr](int acc, int v) { return acc + v * m_arr[v]; });
 
 	/*int p2 = 0;
 	for (int v : a) {

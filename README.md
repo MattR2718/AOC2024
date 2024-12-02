@@ -3,7 +3,7 @@
 | Day  | Part 1  | Part 2  |
 |------|---------|---------|
 | Day 1 | :white_check_mark: | :white_check_mark: |
-| Day 2 | :x: | :x: |
+| Day 2 | :white_check_mark: | :white_check_mark: |
 | Day 3 | :x: | :x: |
 | Day 4 | :x: | :x: |
 | Day 5 | :x: | :x: |

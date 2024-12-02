@@ -12,7 +12,7 @@ endif()
 project ("AOC2024" CXX)
 
 # Add source to this project's executable.
-add_executable (AOC2024 "AOC2024.cpp" "AOC2024.h" "day1/day1.cpp")
+add_executable (AOC2024 "AOC2024.cpp" "AOC2024.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET AOC2024 PROPERTY CXX_STANDARD 20)
@@ -27,3 +27,6 @@ add_subdirectory(base)
 
 # Day subdirectories
 add_subdirectory(day1)
+add_subdirectory(day2)
+
+
