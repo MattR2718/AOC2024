@@ -76,6 +76,29 @@ namespace aoc_utils {
         return buffer.str();
     }
 
+
+
+    std::optional<std::string> memory_map_file_boost(
+        const std::string filename
+    ) {
+        boost::iostreams::mapped_file_source file;
+        file.open(filename);
+        if (!file.is_open()) {
+            throw std::runtime_error("Failed to open file: " + filename);
+        }
+
+        const char* data = file.data();
+        size_t size = file.size();
+		return std::string(data, size);
+    }
+
+
+
+
+
+
+
+
     std::vector<std::string> tokenize(const std::string& input, const std::string& delimiters) {
         std::vector<std::string> tokens;
         size_t start = 0, end = 0;
