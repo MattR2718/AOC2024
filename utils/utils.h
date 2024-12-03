@@ -16,6 +16,7 @@
 #include <regex>
 #include <execution>
 #include <ranges>
+#include <string_view>
 
 #include <boost/iostreams/device/mapped_file.hpp>
 #include "ctre.hpp" // Assuming this is where the ctre namespace is defined
@@ -93,8 +94,17 @@ namespace aoc_utils {
     }
 
 
-
-
+    void memory_map_file_boost_sv(
+        const std::string& filename,
+        boost::iostreams::mapped_file_source& file,
+        std::string_view& sv
+    ) {
+        file.open(filename);
+        if (!file.is_open()) {
+            throw std::runtime_error("Failed to open file: " + filename);
+        }
+        sv = std::string_view(file.data(), file.size());
+    }
 
 
 

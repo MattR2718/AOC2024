@@ -14,24 +14,40 @@ int main() {
     timer.create_timer(p12_timer_config);
 
     timer.begin(0);
-    std::string f = aoc_utils::memory_map_file_boost("input.txt").value();
+    boost::iostreams::mapped_file_source f;
+    std::string_view sv;
+    aoc_utils::memory_map_file_boost_sv("input.txt", f, sv);
     constexpr auto pattern = ctll::fixed_string{ R"((mul\((\d+),\s*(\d+)\)|do\(\)|don't\(\)))" };
 
     int pp1 = 0, pp2 = 0;
     bool d = true;
-    for (const auto& match : ctre::range<pattern>(f)) {
-        if (match.to_view().starts_with("mul")) {
-            int a = std::stoi(std::string{ match.get<2>() });
-            int b = std::stoi(std::string{ match.get<3>() });
-            pp1 += a * b;
-            if (d) {
-                pp2 += a * b;
+
+    constexpr std::string_view do_str = "do()";
+    constexpr std::string_view dont_str = "don't()";
+
+    int a = 0, b = 0;
+	const char* a_start = nullptr, *b_start = nullptr;
+    for (const auto& match : ctre::range<pattern>(sv.data())) {
+        std::string_view view = match.to_view();
+        if (view.starts_with("m")) {
+            a_start = match.get<2>().data();
+            b_start = match.get<3>().data();
+
+            a = 0, b = 0;
+            while (*a_start >= '0' && *a_start <= '9') {
+                a = a * 10 + (*a_start++ - '0');
             }
+            while (*b_start >= '0' && *b_start <= '9') {
+                b = b * 10 + (*b_start++ - '0');
+            }
+
+            pp1 += a * b;
+            if (d) pp2 += a * b;
         }
-        else if (match.to_view() == "do()") {
+        else if (view == do_str) {
             d = true;
         }
-        else if (match.to_view() == "don't()") {
+        else if (view == dont_str) {
             d = false;
         }
     }
@@ -51,7 +67,7 @@ int main() {
 //Timer ID : 0
 //Label : Part 12
 //Description : Memory Map File, then Compute parts 1 and 2
-//Elapsed Time : 359.7 microseconds
+//Elapsed Time : 255.5 microseconds
 //========================================================================== =
 //
 //
@@ -60,10 +76,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 19
-//Ticks : 195486
-//TotalDays : 2.26256944444444E-07
-//TotalHours : 5.43016666666667E-06
-//TotalMinutes : 0.00032581
-//TotalSeconds : 0.0195486
-//TotalMilliseconds : 19.5486
+//Milliseconds : 15
+//Ticks : 153922
+//TotalDays : 1.78150462962963E-07
+//TotalHours : 4.27561111111111E-06
+//TotalMinutes : 0.000256536666666667
+//TotalSeconds : 0.0153922
+//TotalMilliseconds : 15.3922
