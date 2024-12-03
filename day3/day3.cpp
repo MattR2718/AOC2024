@@ -30,16 +30,9 @@ int main() {
     for (const auto& match : ctre::range<pattern>(sv.data())) {
         std::string_view view = match.to_view();
         if (view.starts_with("m")) {
-            a_start = match.get<2>().data();
-            b_start = match.get<3>().data();
 
-            a = 0, b = 0;
-            while (*a_start >= '0' && *a_start <= '9') {
-                a = a * 10 + (*a_start++ - '0');
-            }
-            while (*b_start >= '0' && *b_start <= '9') {
-                b = b * 10 + (*b_start++ - '0');
-            }
+            a = match.get<2>().to_number();
+            b = match.get<3>().to_number();
 
             pp1 += a * b;
             if (d) pp2 += a * b;
