@@ -37,12 +37,12 @@ int main() {
 
 	default_timer.begin(1);
 
-	int _ = std::transform_reduce(std::execution::par_unseq, updates.begin(), updates.end(), 0, std::plus<>(), [&](std::vector<int>& up) {
+	int _ = std::transform_reduce(std::execution::unseq, updates.begin(), updates.end(), 0, std::plus<>(), [&](std::vector<int>& up) {
 		for (int i = 0; i < up.size() - 1; ++i) {
 			for (int j = i + 1; j < up.size(); j++) {
 				if (rules[up[j]][up[i]]) {
 
-					std::sort(std::execution::par_unseq, up.begin(), up.end(), [&](int a, int b) {
+					std::sort(std::execution::unseq, up.begin(), up.end(), [&](int a, int b) {
 						return rules[a][b];
 						});
 

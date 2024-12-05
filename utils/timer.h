@@ -62,8 +62,8 @@ namespace aoc_utils {
         }
 
         void end(int id) {
+            auto end_time = std::chrono::high_resolution_clock::now();
             if (timers.find(id) != timers.end()) {
-                auto end_time = std::chrono::high_resolution_clock::now();
                 timers[id].end_time = end_time;
                 timers[id].is_stopped = true;
             }
