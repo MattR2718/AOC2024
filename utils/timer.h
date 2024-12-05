@@ -15,7 +15,7 @@
         .id = 0, \
         .units = "microseconds", \
         .label = "Input", \
-        .description = "Read input from file and parse into uint64_t" \
+        .description = "Read input from file and parse" \
     }; \
     aoc_utils::timer_config p1_timer_config = { \
         .id = 1, \

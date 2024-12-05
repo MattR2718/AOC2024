@@ -1,6 +1,8 @@
 #include "../utils/utils.h"
 
 
+int lr = 0, ud = 0, urdl = 0, uldr = 0;
+
 int check_xy(std::vector<std::string> &a, int i, int j) {
 
 	std::string_view w = "XMAS";
@@ -17,6 +19,7 @@ int check_xy(std::vector<std::string> &a, int i, int j) {
 
 		if (i2 - i == 4) {
 			n++;
+			lr++;
 			break;
 		}
 	}
@@ -33,6 +36,7 @@ int check_xy(std::vector<std::string> &a, int i, int j) {
 
 		if (i - i2 == 4) {
 			n++;
+			lr++;
 			break;
 		}
 	}
@@ -49,6 +53,7 @@ int check_xy(std::vector<std::string> &a, int i, int j) {
 
 		if (j2 - j == 4) {
 			n++;
+			ud++;
 			break;
 		}
 	}
@@ -65,6 +70,7 @@ int check_xy(std::vector<std::string> &a, int i, int j) {
 
 		if (j - j2 == 4) {
 			n++;
+			ud++;
 			break;
 		}
 	}
@@ -83,6 +89,7 @@ int check_xy(std::vector<std::string> &a, int i, int j) {
 
 		if (j2 - j == 4) {
 			n++;
+			uldr++;
 			break;
 		}
 	}
@@ -101,6 +108,7 @@ int check_xy(std::vector<std::string> &a, int i, int j) {
 
 		if (j2 - j == 4) {
 			n++;
+			urdl++;
 			break;
 		}
 	}
@@ -119,6 +127,7 @@ int check_xy(std::vector<std::string> &a, int i, int j) {
 
 		if (j - j2 == 4) {
 			n++;
+			urdl++;
 			break;
 		}
 	}
@@ -137,6 +146,7 @@ int check_xy(std::vector<std::string> &a, int i, int j) {
 
 		if (j - j2 == 4) {
 			n++;
+			uldr++;
 			break;
 		}
 	}
@@ -185,6 +195,8 @@ int main() {
 	std::cout << "Part 1: " << p1 << "\n";
 	std::cout<<"Part 2: "<<p2<<"\n";
 	default_timer.display_all();
+
+	std::cout << lr << '\n' << ud << '\n' << uldr << '\n' << urdl << '\n';
 }
 
 //Part 1: 2549
