@@ -101,7 +101,7 @@ int main() {
         visited[x + y * width] = true;
     }
 
-    int p1 = std::count(std::execution::par, visited.begin(), visited.end(), true);
+    int p1 = std::count(std::execution::unseq, visited.begin(), visited.end(), true);
 	default_timer.end(1);
 
     // Part 2
@@ -117,7 +117,7 @@ int main() {
     default_timer.begin(2);
     int i = 0;
     int p2 = std::transform_reduce(
-        std::execution::par_unseq,
+        std::execution::par,
         candidates.begin(),
         candidates.end(),
         0,
@@ -142,19 +142,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 135.5 microseconds
+//Elapsed Time : 130 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 75.5 microseconds
+//Elapsed Time : 43.6 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 29511.4 microseconds
+//Elapsed Time : 32285.8 microseconds
 //========================================================================== =
 //
 //
@@ -163,10 +163,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 45
-//Ticks : 454040
-//TotalDays : 5.25509259259259E-07
-//TotalHours : 1.26122222222222E-05
-//TotalMinutes : 0.000756733333333333
-//TotalSeconds : 0.045404
-//TotalMilliseconds : 45.404
+//Milliseconds : 49
+//Ticks : 491481
+//TotalDays : 5.6884375E-07
+//TotalHours : 1.365225E-05
+//TotalMinutes : 0.000819135
+//TotalSeconds : 0.0491481
+//TotalMilliseconds : 49.1481
