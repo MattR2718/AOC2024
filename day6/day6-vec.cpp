@@ -13,6 +13,29 @@ enum {
     LEFT = 3
 };
 
+inline void move1(const std::vector<uint8_t>& grid, const int width, int& x, int& y, int& dir, std::vector<bool>& vis) {
+    static const int dx[] = { 0, 1, 0, -1 };
+    static const int dy[] = { -1, 0, 1, 0 };
+
+    int next_x = x + dx[dir];
+    int next_y = y + dy[dir];
+    int next_pos = next_x + next_y * width;
+
+    while (grid[next_pos] == '.' || grid[next_pos] == '^') {
+		vis[next_pos] = true;
+        x = next_x;
+        y = next_y;
+        next_x = x + dx[dir];
+        next_y = y + dy[dir];
+        next_pos = next_x + next_y * width;
+		if (next_pos < 0 || next_pos >= grid.size())
+			break;
+    }
+    if ((next_pos >= 0 || next_pos < grid.size()) && grid[next_pos] == '#') {
+        dir = (dir + 1) & 3;
+    }
+}
+
 inline void move(const std::vector<uint8_t>& grid, const int width, int& x, int& y, int& dir) {
     static const int dx[] = { 0, 1, 0, -1 };
     static const int dy[] = { -1, 0, 1, 0 };
@@ -97,8 +120,8 @@ int main() {
         (x != width - 2 || dir != RIGHT) &&
         (y != 0 || dir != UP) &&
         (y != grid.size() / width - 1 || dir != DOWN)) {
-        move(grid, width, x, y, dir);
         visited[x + y * width] = true;
+        move1(grid, width, x, y, dir, visited);
     }
 
     int p1 = std::count(std::execution::unseq, visited.begin(), visited.end(), true);
