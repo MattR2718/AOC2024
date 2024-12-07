@@ -13,7 +13,7 @@ enum {
     LEFT = 3
 };
 
-inline void move1(const std::vector<uint8_t>& grid, const int width, int& x, int& y, int& dir, std::vector<bool>& vis) {
+inline void move1(const std::bitset<17000>& walls, const int width, const int height, int& x, int& y, int& dir, std::vector<bool>& vis) {
     static const int dx[] = { 0, 1, 0, -1 };
     static const int dy[] = { -1, 0, 1, 0 };
 
@@ -21,22 +21,22 @@ inline void move1(const std::vector<uint8_t>& grid, const int width, int& x, int
     int next_y = y + dy[dir];
     int next_pos = next_x + next_y * width;
 
-    while (grid[next_pos] == '.' || grid[next_pos] == '^') {
-		vis[next_pos] = true;
+    while (!walls[next_pos]) {
+        vis[next_pos] = true;
         x = next_x;
         y = next_y;
         next_x = x + dx[dir];
         next_y = y + dy[dir];
         next_pos = next_x + next_y * width;
-		if (next_pos < 0 || next_pos >= grid.size())
-			break;
+        if (next_pos < 0 || next_pos >= height)
+            break;
     }
-    if ((next_pos >= 0 || next_pos < grid.size()) && grid[next_pos] == '#') {
+    if ((next_pos >= 0 || next_pos < height) && walls[next_pos]) {
         dir = (dir + 1) & 3;
     }
 }
 
-inline void move(const std::vector<uint8_t>& grid, const int width, int& x, int& y, int& dir, int op = -1) {
+inline void move2(const std::bitset<17000>& walls, const int width, int& x, int& y, int& dir, int op = -1) {
     static const int dx[] = { 0, 1, 0, -1 };
     static const int dy[] = { -1, 0, 1, 0 };
 
@@ -44,45 +44,45 @@ inline void move(const std::vector<uint8_t>& grid, const int width, int& x, int&
     int next_y = y + dy[dir];
     int next_pos = next_x + next_y * width;
 
-    if (next_pos != op && (grid[next_pos] == '.' || grid[next_pos] == '^')) {
+    if (next_pos != op && !walls[next_pos]) {
         x = next_x;
         y = next_y;
     }
-    else if (grid[next_pos] == '#' || next_pos == op) {
+    else if (walls[next_pos] || next_pos == op) {
         dir = (dir + 1) & 3;
     }
 }
 
-bool creates_loop(const std::vector<uint8_t>& grid, int width, int start_x, int start_y, int obstacle_x, int obstacle_y) {
-    if (grid[obstacle_x + obstacle_y * width] != '.' ||
+bool creates_loop(const std::bitset<17000>& walls, int width, int height, int start_x, int start_y, int obstacle_x, int obstacle_y) {
+    if (walls[obstacle_x + obstacle_y * width] ||
         (obstacle_x == start_x && obstacle_y == start_y)) {
         return false;
     }
 
-	int obstacle_pos = obstacle_x + obstacle_y * width;
+    int obstacle_pos = obstacle_x + obstacle_y * width;
 
-    std::vector<bool> visited(grid.size(), false);
+    std::vector<bool> visited(width * height, false);
     int x = start_x;
     int y = start_y;
     int dir = UP;
 
-	std::vector<uint8_t> hist(grid.size(), 0);
-	hist[x + y * width] |= 1 << dir;
+    std::vector<uint8_t> hist(width * height, 0);
+    hist[x + y * width] |= 1 << dir;
 
     visited[x + y * width] = true;
     while ((x != 0 || dir != LEFT) &&
         (x != width - 2 || dir != RIGHT) &&
         (y != 0 || dir != UP) &&
-        (y != grid.size() / width - 1 || dir != DOWN)) {
+        (y != height - 1 || dir != DOWN)) {
 
-        move(grid, width, x, y, dir, obstacle_pos);
+        move2(walls, width, x, y, dir, obstacle_pos);
         visited[x + y * width] = true;
 
-		if (hist[x + y * width] & 1 << dir)
-			return true;
+        if (hist[x + y * width] & 1 << dir)
+            return true;
 
 
-		hist[x + y * width] |= 1 << dir;
+        hist[x + y * width] |= 1 << dir;
 
     }
 
@@ -105,6 +105,17 @@ int main() {
 
     std::vector<uint8_t> grid(in.begin(), in.end());
 
+    int height = grid.size() / width;
+
+    std::bitset<17000> walls{ 0 };
+    for (int y = 0; y < grid.size() / width; y++) {
+        for (int x = 0; x < width; x++) {
+            if (grid[x + y * width] == '#') {
+                walls[x + y * width] = true;
+            }
+        }
+    }
+
     default_timer.end(0);
     
 	// Part 1
@@ -120,7 +131,7 @@ int main() {
         (y != 0 || dir != UP) &&
         (y != grid.size() / width - 1 || dir != DOWN)) {
         visited[x + y * width] = true;
-        move1(grid, width, x, y, dir, visited);
+        move1(walls, width, height, x, y, dir, visited);
     }
 
     int p1 = std::count(std::execution::unseq, visited.begin(), visited.end(), true);
@@ -139,13 +150,13 @@ int main() {
     default_timer.begin(2);
     int i = 0;
     int p2 = std::transform_reduce(
-        std::execution::par,
+        std::execution::par_unseq,
         candidates.begin(),
         candidates.end(),
         0,
         std::plus<>(),
         [&](const auto& pos) {
-            int j = creates_loop(grid, width, start_x, start_y, pos.first, pos.second) ? 1 : 0;
+            int j = creates_loop(walls, width, height, start_x, start_y, pos.first, pos.second) ? 1 : 0;
             i += j;
             return j;
         }
@@ -164,19 +175,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 136.5 microseconds
+//Elapsed Time : 137.7 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 49.4 microseconds
+//Elapsed Time : 51.6 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 16398.5 microseconds
+//Elapsed Time : 12796.8 microseconds
 //========================================================================== =
 //
 //
@@ -185,10 +196,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 33
-//Ticks : 330171
-//TotalDays : 3.82142361111111E-07
-//TotalHours : 9.17141666666667E-06
-//TotalMinutes : 0.000550285
-//TotalSeconds : 0.0330171
-//TotalMilliseconds : 33.0171
+//Milliseconds : 28
+//Ticks : 280547
+//TotalDays : 3.24707175925926E-07
+//TotalHours : 7.79297222222222E-06
+//TotalMinutes : 0.000467578333333333
+//TotalSeconds : 0.0280547
+//TotalMilliseconds : 28.0547
