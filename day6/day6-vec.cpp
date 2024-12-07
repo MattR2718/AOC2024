@@ -36,7 +36,7 @@ inline void move1(const std::vector<uint8_t>& grid, const int width, int& x, int
     }
 }
 
-inline void move(const std::vector<uint8_t>& grid, const int width, int& x, int& y, int& dir) {
+inline void move(const std::vector<uint8_t>& grid, const int width, int& x, int& y, int& dir, int op = -1) {
     static const int dx[] = { 0, 1, 0, -1 };
     static const int dy[] = { -1, 0, 1, 0 };
 
@@ -44,23 +44,22 @@ inline void move(const std::vector<uint8_t>& grid, const int width, int& x, int&
     int next_y = y + dy[dir];
     int next_pos = next_x + next_y * width;
 
-    if (grid[next_pos] == '.' || grid[next_pos] == '^') {
+    if (next_pos != op && (grid[next_pos] == '.' || grid[next_pos] == '^')) {
         x = next_x;
         y = next_y;
     }
-    else if (grid[next_pos] == '#') {
+    else if (grid[next_pos] == '#' || next_pos == op) {
         dir = (dir + 1) & 3;
     }
 }
 
-bool creates_loop(std::vector<uint8_t> grid, int width, int start_x, int start_y, int obstacle_x, int obstacle_y) {
+bool creates_loop(const std::vector<uint8_t>& grid, int width, int start_x, int start_y, int obstacle_x, int obstacle_y) {
     if (grid[obstacle_x + obstacle_y * width] != '.' ||
         (obstacle_x == start_x && obstacle_y == start_y)) {
         return false;
     }
 
-    grid[obstacle_x + obstacle_y * width] = '#';
-
+	int obstacle_pos = obstacle_x + obstacle_y * width;
 
     std::vector<bool> visited(grid.size(), false);
     int x = start_x;
@@ -76,7 +75,7 @@ bool creates_loop(std::vector<uint8_t> grid, int width, int start_x, int start_y
         (y != 0 || dir != UP) &&
         (y != grid.size() / width - 1 || dir != DOWN)) {
 
-        move(grid, width, x, y, dir);
+        move(grid, width, x, y, dir, obstacle_pos);
         visited[x + y * width] = true;
 
 		if (hist[x + y * width] & 1 << dir)
@@ -165,19 +164,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 130 microseconds
+//Elapsed Time : 136.5 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 43.6 microseconds
+//Elapsed Time : 49.4 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 32285.8 microseconds
+//Elapsed Time : 16398.5 microseconds
 //========================================================================== =
 //
 //
@@ -186,10 +185,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 49
-//Ticks : 491481
-//TotalDays : 5.6884375E-07
-//TotalHours : 1.365225E-05
-//TotalMinutes : 0.000819135
-//TotalSeconds : 0.0491481
-//TotalMilliseconds : 49.1481
+//Milliseconds : 33
+//Ticks : 330171
+//TotalDays : 3.82142361111111E-07
+//TotalHours : 9.17141666666667E-06
+//TotalMinutes : 0.000550285
+//TotalSeconds : 0.0330171
+//TotalMilliseconds : 33.0171
