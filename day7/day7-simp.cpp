@@ -9,6 +9,7 @@ inline uint64_t concat_uint64(uint64_t a, uint64_t b) {
 
 inline bool rec(const std::vector<uint64_t>& in, const size_t i, const uint64_t& current, const bool p2 = false) {
     if (i == in.size()) { return current == in[0]; }
+	if (current > in[0]) { return false; }
 
     const uint64_t next = in[i];
 
@@ -73,19 +74,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 807.2 microseconds
+//Elapsed Time : 821.4 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 321.7 microseconds
+//Elapsed Time : 315.8 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 4889.4 microseconds
+//Elapsed Time : 3705.4 microseconds
 //========================================================================== =
 //
 //
@@ -94,10 +95,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 22
-//Ticks : 221553
-//TotalDays : 2.56427083333333E-07
-//TotalHours : 6.15425E-06
-//TotalMinutes : 0.000369255
-//TotalSeconds : 0.0221553
-//TotalMilliseconds : 22.1553
+//Milliseconds : 26
+//Ticks : 263964
+//TotalDays : 3.05513888888889E-07
+//TotalHours : 7.33233333333333E-06
+//TotalMinutes : 0.00043994
+//TotalSeconds : 0.0263964
+//TotalMilliseconds : 26.3964
