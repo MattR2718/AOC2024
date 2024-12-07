@@ -222,6 +222,47 @@ namespace aoc_utils {
         file.close();
     }
 
+    template <typename T>
+    std::vector<T> read_lines_mmap_par(
+        const std::string filename,
+        std::function<T(const std::string&)> convert = [](const std::string& s) { return s; }
+    ) {
+        boost::iostreams::mapped_file_source file;
+        file.open(filename);
+        if (!file.is_open()) {
+            throw std::runtime_error("Failed to open file: " + filename);
+        }
+
+        const char* data = file.data();
+        size_t size = file.size();
+
+        std::vector<std::string> results;
+        const char* line_start = data;
+
+        for (size_t i = 0; i < size; ++i) {
+            if (data[i] == '\n' || i == size - 1) {
+                size_t line_length = (data[i] == '\n') ? (data + i - line_start) : (data + i - line_start + 1);
+                std::string line(line_start, line_length);
+
+                // Remove carriage return if it exists at the end of the line
+                if (!line.empty() && line.back() == '\r') {
+                    line.pop_back();
+                }
+
+                results.push_back(line);
+                line_start = data + i + 1;
+            }
+        }
+
+        file.close();
+
+		std::vector<T> converted_results(results.size());
+
+		std::transform(std::execution::par_unseq, results.begin(), results.end(), converted_results.begin(), convert);
+
+        return converted_results;
+    }
+
     // Custom hash for pairs of integers (or any type you need)
     template<typename T>
     struct custom_hash {
