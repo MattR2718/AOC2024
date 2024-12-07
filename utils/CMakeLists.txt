@@ -11,7 +11,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(ctre)
 
 # Find necessary packages
-find_package(Boost REQUIRED COMPONENTS iostreams)
+find_package(Boost REQUIRED COMPONENTS iostreams multiprecision)
 find_package(GTest CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 
@@ -24,6 +24,7 @@ target_link_libraries(utils
         fmt::fmt
         ctre::ctre 
         Boost::iostreams
+        Boost::multiprecision
         GTest::gtest 
         GTest::gtest_main
 )

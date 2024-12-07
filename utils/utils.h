@@ -19,6 +19,7 @@
 #include <string_view>
 
 #include <boost/iostreams/device/mapped_file.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 #include "ctre.hpp" // Assuming this is where the ctre namespace is defined
 #include "fmt/core.h"
 
