@@ -14,20 +14,23 @@ int main() {
 
 
 	default_timer.begin(0);
-	aoc_utils::read_lines_mmap_apply<int>("input.txt", [&](const std::string& line) {
-		if (first) {
-			width = line.size();
+	std::string_view sv;
+	boost::iostreams::mapped_file_source file;
+	aoc_utils::memory_map_file_boost_sv("input.txt", file, sv);
+
+	for (const char c : sv) {
+		if (c == '\n') {
 			first = false;
+			height++;
+			width = 0;
+			continue;
 		}
+		if (c != '.')
+			m[c].push_back({ width, height });
+		width++;
+	}
+	height++;
 
-		for (int i = 0; i < line.length(); i++) {
-			if (line[i] != '.')
-				m[line[i]].push_back({ i, height });
-		}
-
-		height++;
-		return 0;
-		});
 	default_timer.end(0);
 	
 	int p1 = 0, p2 = 0;
@@ -100,19 +103,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 126.1 microseconds
+//Elapsed Time : 97.3 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 5.6 microseconds
+//Elapsed Time : 8.5 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 10 microseconds
+//Elapsed Time : 11.9 microseconds
 //========================================================================== =
 //
 //
@@ -121,10 +124,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 17
-//Ticks : 175894
-//TotalDays : 2.03581018518519E-07
-//TotalHours : 4.88594444444444E-06
-//TotalMinutes : 0.000293156666666667
-//TotalSeconds : 0.0175894
-//TotalMilliseconds : 17.5894
+//Milliseconds : 15
+//Ticks : 159110
+//TotalDays : 1.84155092592593E-07
+//TotalHours : 4.41972222222222E-06
+//TotalMinutes : 0.000265183333333333
+//TotalSeconds : 0.015911
+//TotalMilliseconds : 15.911
