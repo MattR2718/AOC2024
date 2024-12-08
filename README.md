@@ -9,7 +9,7 @@
 | Day 5 | :white_check_mark: | :white_check_mark: |
 | Day 6 | :white_check_mark: | :white_check_mark: |
 | Day 7 | :white_check_mark: | :white_check_mark: |
-| Day 8 | :x: | :x: |
+| Day 8 | :white_check_mark: | :white_check_mark: |
 | Day 9 | :x: | :x: |
 | Day 10 | :x: | :x: |
 | Day 11 | :x: | :x: |
