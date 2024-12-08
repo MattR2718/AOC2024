@@ -43,10 +43,15 @@ int main() {
 				int dx = value[i].first - value[j].first;
 				int dy = value[i].second - value[j].second;
 
-				if (value[i].first + dx >= 0 && value[i].first + dx < width && value[i].second + dy >= 0 && value[i].second + dy < height)
-					an[value[i].first + dx + (value[i].second + dy) * width] = 1;
-				if (value[j].first - dx >= 0 && value[j].first - dx < width && value[j].second - dy >= 0 && value[j].second - dy < height)
-					an[value[j].first - dx + (value[j].second - dy) * width] = 1;
+				int x1 = value[i].first + dx;
+				int y1 = value[i].second + dy;
+				int x2 = value[j].first - dx;
+				int y2 = value[j].second - dy;
+
+				if (x1 >= 0 && x1 < width && y1 >= 0 && y1 < height)
+					an[x1 + (y1) * width] = 1;
+				if (x2 >= 0 && x2 < width && y2 >= 0 && y2 < height)
+					an[x2 + (y2) * width] = 1;
 
 			}
 		}
