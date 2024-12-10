@@ -5,7 +5,7 @@ inline int get_index(int x, int y, int width) {
     return y * width + x;
 }
 
-int solve(const std::string_view& s, int width, const std::pair<int, int>& p, int n, std::vector<uint8_t>& ends) {
+int solve(const std::string_view& s, int width, const std::pair<int, int>& p, int n, uint8_t *ends, bool p2 = false) {
     int height = s.length() / width;
 
     if (p.first < 0 || p.first >= width || p.second < 0 || p.second >= height) {
@@ -13,8 +13,8 @@ int solve(const std::string_view& s, int width, const std::pair<int, int>& p, in
     }
 
     int current_index = get_index(p.first, p.second, width);
-    if (s[current_index] == '9' && !ends[get_index(p.first, p.second, width)]) {
-        ends[get_index(p.first, p.second, width)] = 1;
+    if (s[current_index] == '9' && (p2 || !(*(ends+get_index(p.first, p.second, width))))) {
+        if (!p2) *(ends + get_index(p.first, p.second, width)) = 1;
         return 1;
     }
 
@@ -23,34 +23,12 @@ int solve(const std::string_view& s, int width, const std::pair<int, int>& p, in
         int nx = p.first + dx;
         int ny = p.second + dy;
         if (nx >= 0 && nx < width && ny >= 0 && ny < height && s[get_index(nx, ny, width)] == '0' + n) {
-            r += solve(s, width, { nx, ny }, n + 1, ends);
+            r += solve(s, width, { nx, ny }, n + 1, ends, p2);
         }
     }
     return r;
 }
 
-int solve2(const std::string_view& s, int width, const std::pair<int, int>& p, int n) {
-    int height = s.length() / width;
-
-    if (p.first < 0 || p.first >= width || p.second < 0 || p.second >= height) {
-        return 0;
-    }
-
-    int current_index = get_index(p.first, p.second, width);
-    if (s[current_index] == '9') {
-        return 1;
-    }
-
-    int r = 0;
-    for (const auto& [dx, dy] : aoc_utils::cardinal_directions) {
-        int nx = p.first + dx;
-        int ny = p.second + dy;
-        if (nx >= 0 && nx < width && ny >= 0 && ny < height && s[get_index(nx, ny, width)] == '0' + n) {
-            r += solve2(s, width, { nx, ny }, n + 1);
-        }
-    }
-    return r;
-}
 
 int main() {
     INITIALIZE_AOC_TIMERS();
@@ -77,14 +55,14 @@ int main() {
     p1 = std::transform_reduce(std::execution::unseq, starts.begin(), starts.end(), 0, std::plus<>(),
         [&](const auto& s) {
 			std::vector<uint8_t> ends(width * height, 0);
-            return solve(input, width, s, 1, ends);
+            return solve(input, width, s, 1, ends.data());
         });
     default_timer.end(1);
 
     default_timer.begin(2);
     p2 = std::transform_reduce(std::execution::unseq, starts.begin(), starts.end(), 0, std::plus<>(),
         [&](const auto& s) {
-            return solve2(input, width, s, 1);
+            return solve(input, width, s, 1, nullptr, true);
         });
     default_timer.end(2);
 
