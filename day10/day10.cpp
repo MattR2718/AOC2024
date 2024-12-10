@@ -29,6 +29,57 @@ int solve(const std::string_view& s, int width, const std::pair<int, int>& p, in
     return r;
 }
 
+struct State {
+    int x, y;      // Current position
+    int n;         // Current number we're looking for
+};
+
+
+int solve_it(const std::string_view& s, int width, const std::pair<int, int>& p, int n, uint8_t* ends, bool p2 = false) {
+    int height = s.length() / width;
+
+    int sp = 0;
+    std::vector<State> sta(10);
+	sta[sp++] = { p.first, p.second, n };
+
+    int ret = 0;
+
+    while (sp) {
+
+		State st = sta[--sp];
+
+        if (st.x < 0 || st.x >= width || st.y < 0 || st.y >= height) {
+            continue;
+        }
+
+        int current_index = get_index(st.x, st.y, width);
+
+        if (s[current_index] == '9') {
+            if (p2) {
+                ret += 1;
+            }
+            else if (!ends[current_index]) {
+                ends[current_index] = 1;
+                ret += 1;
+            }
+            continue;
+        }
+
+        for (const auto& [dx, dy] : aoc_utils::cardinal_directions) {
+            int nx = st.x + dx;
+            int ny = st.y + dy;
+
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height &&
+                s[get_index(nx, ny, width)] == '0' + st.n) {
+                //stack.push({ nx, ny, st.n + 1});
+				sta[sp++] = { nx, ny, st.n + 1 };
+            }
+        }
+    }
+
+    return ret;
+}
+
 
 int main() {
     INITIALIZE_AOC_TIMERS();
@@ -55,14 +106,14 @@ int main() {
     p1 = std::transform_reduce(std::execution::unseq, starts.begin(), starts.end(), 0, std::plus<>(),
         [&](const auto& s) {
 			std::vector<uint8_t> ends(width * height, 0);
-            return solve(input, width, s, 1, ends.data());
+            return solve_it(input, width, s, 1, ends.data());
         });
     default_timer.end(1);
 
     default_timer.begin(2);
     p2 = std::transform_reduce(std::execution::unseq, starts.begin(), starts.end(), 0, std::plus<>(),
         [&](const auto& s) {
-            return solve(input, width, s, 1, nullptr, true);
+            return solve_it(input, width, s, 1, nullptr, true);
         });
     default_timer.end(2);
 
