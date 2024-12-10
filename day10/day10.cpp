@@ -5,33 +5,9 @@ inline int get_index(int x, int y, int width) {
     return y * width + x;
 }
 
-int solve(const std::string_view& s, int width, const std::pair<int, int>& p, int n, uint8_t *ends, bool p2 = false) {
-    int height = s.length() / width;
-
-    if (p.first < 0 || p.first >= width || p.second < 0 || p.second >= height) {
-        return 0;
-    }
-
-    int current_index = get_index(p.first, p.second, width);
-    if (s[current_index] == '9' && (p2 || !(*(ends+get_index(p.first, p.second, width))))) {
-        if (!p2) *(ends + get_index(p.first, p.second, width)) = 1;
-        return 1;
-    }
-
-    int r = 0;
-    for (const auto& [dx, dy] : aoc_utils::cardinal_directions) {
-        int nx = p.first + dx;
-        int ny = p.second + dy;
-        if (nx >= 0 && nx < width && ny >= 0 && ny < height && s[get_index(nx, ny, width)] == '0' + n) {
-            r += solve(s, width, { nx, ny }, n + 1, ends, p2);
-        }
-    }
-    return r;
-}
-
 struct State {
-    int x, y;      // Current position
-    int n;         // Current number we're looking for
+    int x, y;
+    int n;
 };
 
 
@@ -48,16 +24,12 @@ int solve_it(const std::string_view& s, int width, const std::pair<int, int>& p,
 
 		State st = sta[--sp];
 
-        if (st.x < 0 || st.x >= width || st.y < 0 || st.y >= height) {
-            continue;
-        }
+        if (st.x < 0 || st.x >= width || st.y < 0 || st.y >= height) { continue; }
 
         int current_index = get_index(st.x, st.y, width);
 
         if (s[current_index] == '9') {
-            if (p2) {
-                ret += 1;
-            }
+            if (p2) { ret += 1; }
             else if (!ends[current_index]) {
                 ends[current_index] = 1;
                 ret += 1;
@@ -71,7 +43,6 @@ int solve_it(const std::string_view& s, int width, const std::pair<int, int>& p,
 
             if (nx >= 0 && nx < width && ny >= 0 && ny < height &&
                 s[get_index(nx, ny, width)] == '0' + st.n) {
-                //stack.push({ nx, ny, st.n + 1});
 				sta[sp++] = { nx, ny, st.n + 1 };
             }
         }
