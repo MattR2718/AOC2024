@@ -5,7 +5,7 @@ inline int get_index(int x, int y, int width) {
     return y * width + x;
 }
 
-int solve(const std::string_view& s, int width, const std::pair<int, int>& p, int n, std::set<std::pair<int, int>>& ends) {
+int solve(const std::string_view& s, int width, const std::pair<int, int>& p, int n, std::vector<uint8_t>& ends) {
     int height = s.length() / width;
 
     if (p.first < 0 || p.first >= width || p.second < 0 || p.second >= height) {
@@ -13,8 +13,8 @@ int solve(const std::string_view& s, int width, const std::pair<int, int>& p, in
     }
 
     int current_index = get_index(p.first, p.second, width);
-    if (s[current_index] == '9' && !ends.contains(p)) {
-        ends.insert(p);
+    if (s[current_index] == '9' && !ends[get_index(p.first, p.second, width)]) {
+        ends[get_index(p.first, p.second, width)] = 1;
         return 1;
     }
 
@@ -62,7 +62,6 @@ int main() {
 	input.erase(std::remove(input.begin(), input.end(), '\n'));
 	int height = input.size() / width;
 
-    // Find starting positions
     std::vector<std::pair<int, int>> starts;
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
@@ -77,7 +76,7 @@ int main() {
     default_timer.begin(1);
     p1 = std::transform_reduce(std::execution::unseq, starts.begin(), starts.end(), 0, std::plus<>(),
         [&](const auto& s) {
-            std::set<std::pair<int, int>> ends;
+			std::vector<uint8_t> ends(width * height, 0);
             return solve(input, width, s, 1, ends);
         });
     default_timer.end(1);
@@ -99,19 +98,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 99.6 microseconds
+//Elapsed Time : 113.6 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 112.2 microseconds
+//Elapsed Time : 88.3 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 62.1 microseconds
+//Elapsed Time : 62.7 microseconds
 //========================================================================== =
 //
 //
@@ -120,10 +119,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 26
-//Ticks : 260754
-//TotalDays : 3.01798611111111E-07
-//TotalHours : 7.24316666666667E-06
-//TotalMinutes : 0.00043459
-//TotalSeconds : 0.0260754
-//TotalMilliseconds : 26.0754
+//Milliseconds : 18
+//Ticks : 184788
+//TotalDays : 2.13875E-07
+//TotalHours : 5.133E-06
+//TotalMinutes : 0.00030798
+//TotalSeconds : 0.0184788
+//TotalMilliseconds : 18.4788
