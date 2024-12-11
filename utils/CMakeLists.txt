@@ -15,6 +15,9 @@ find_package(Boost REQUIRED COMPONENTS iostreams multiprecision)
 find_package(GTest CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 
+find_path(PARALLEL_HASHMAP_INCLUDE_DIRS "parallel_hashmap/btree.h")
+#target_include_directories(main PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DIRS})
+
 # Create an INTERFACE library for header-only code
 add_library(utils INTERFACE)
 
@@ -30,4 +33,4 @@ target_link_libraries(utils
 )
 
 # Set the include directories for the header-only library
-target_include_directories(utils INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(utils INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${PARALLEL_HASHMAP_INCLUDE_DIRS})
