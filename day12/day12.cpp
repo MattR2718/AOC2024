@@ -47,143 +47,6 @@ int ffill(const std::string_view& sv, int pos, std::set<int>& visited, int width
     return perimeter * area;
 }
 
-//bool is_valid(int pos, int width, int height) {
-//	int x = pos % width;
-//	int y = pos / width;
-//    return !(x < 0 || x >= width || y < 0 || y >= height);
-//}
-//
-//bool is_valid(int x, int y, int width, int height) {
-//	return !(x < 0 || x >= width || y < 0 || y >= height);
-//}
-//
-//
-//int find_edges(const std::string_view& sv, int width, int height, char c) {
-//	int n = 0;
-//
-//	for (int i = 0; i < width; i++) {
-//        for (int j = 0; j < height; j++) {
-//            int pos = j * width + i;
-//
-//			std::cout << "Checking " << i << ", " << j << '\n';
-//
-//
-//            if (is_valid(pos, width, height) && sv[pos] == c && 
-//               (!is_valid(i, j + 1, width, height) || is_valid(i, j + 1, width, height) && sv[i + (j + 1) * width] != c) && 
-//               (!is_valid(i - 1, j, width, height) || !is_valid(i + 1, j, width, height) || is_valid(i - 1, j, width, height) && sv[(i - 1) + j * width] != c || is_valid(i + 1, j, width, height) && sv[(i + 1) + j * width] != c)
-//            ) {
-//                n++;
-//                std::cout << "Found edge, down vert\n";
-//            }
-//
-//
-//            if (is_valid(pos, width, height) && sv[pos] == c &&
-//                (!is_valid(i, j - 1, width, height) || is_valid(i, j - 1, width, height) && sv[i + (j - 1) * width] != c) &&
-//                (!is_valid(i - 1, j, width, height) || !is_valid(i + 1, j, width, height) || is_valid(i - 1, j, width, height) && sv[(i - 1) + j * width] != c || is_valid(i + 1, j, width, height) && sv[(i + 1) + j * width] != c)
-//            ) {
-//                n++;
-//				std::cout << "Found edge, up vert\n";
-//            }
-//
-//        }
-//	}
-//
-//    for (int j = 0; j < height; j++) {
-//        for (int i = 0; i < width; i++) {
-//            int pos = j * width + i;
-//            std::cout << "Checking " << i << ", " << j << '\n';
-//
-//            if (is_valid(pos, width, height) && sv[pos] == c &&
-//                (!is_valid(i - 1, j, width, height) || is_valid(i - 1, j, width, height) && sv[i - 1 + (j) * width] != c) &&
-//                (!is_valid(i, j - 1, width, height) || !is_valid(i, j + 1, width, height) || is_valid(i, j - 1, width, height) && sv[i + (j - 1) * width] != c || is_valid(i, j + 1, width, height) && sv[i + (j + 1) * width] != c)
-//            ) {
-//                n++;
-//				std::cout << "Found edge, left hor\n";
-//            }
-//
-//            if (is_valid(pos, width, height) && sv[pos] == c &&
-//                (!is_valid(i + 1, j, width, height) || is_valid(i + 1, j, width, height) && sv[i + 1 + (j)*width] != c) &&
-//                (!is_valid(i, j - 1, width, height) || !is_valid(i, j + 1, width, height) || is_valid(i, j - 1, width, height) && sv[i + (j - 1) * width] != c || is_valid(i, j + 1, width, height) && sv[i + (j + 1) * width] != c)
-//            ) {
-//                n++;
-//				std::cout << "Found edge, right hor\n";
-//            }
-//        }
-//    }
-//
-//	return n;
-//
-//}
-
-
-
-
-
-struct three {
-    char x, y, z;
-
-    bool operator==(const three& other) const {
-        return x == other.x && y == other.y && z == other.z;
-    }
-};
-
-
-// Get sets of 2 rows/cols
-// create tuples of elements x, y, z
-// Delete duplicate elements
-// Check how many elements are x, char or char, x
-//int s2(const std::vector<std::string>& l) {
-//
-//    std::map<char, int> m;
-//
-//    
-//    for (int i = 0; i < l.size() - 3; i++) {
-//        std::vector<three> collection;
-//		for (int j = 0; j < l[i].length(); j++) {
-//			collection.push_back({ l[i][j], l[i + 1][j], l[i + 2][j] });
-//		}
-//
-//		std::cout << "--------------------------" << '\n';
-//		/*for (auto& [x, y, z] : collection) {
-//			std::cout << x << y << z << '\n';
-//		}
-//
-//        std::cout << "\n\n";*/
-//
-//        auto last = std::unique(collection.begin(), collection.end());
-//
-//        collection.erase(last, collection.end());
-//
-//        for (auto& [x, y, z] : collection) {
-//            std::cout << x << y << z << '\n';
-//        }
-//
-//        std::cout << "--------------------------" << '\n';
-//
-//    }
-//    
-//    return 0;
-//}
-//
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 struct Edge {
@@ -272,20 +135,6 @@ int calculate_region_price(const std::string& grid, int width, int height, char 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 bool check_corner(const std::vector<std::string>& s, int x, int y, char c) {
     int cor = 0;
     for (int i = 0; i < 2; i++) {
@@ -296,48 +145,6 @@ bool check_corner(const std::vector<std::string>& s, int x, int y, char c) {
 
     return cor == 3 || cor == 1;
 }
-
-
-//void rename_region(std::vector<std::string>& map, int startRow, int startCol, char newChar, char originalChar) {
-//    int rows = map.size();
-//    int cols = map[0].size();
-//    std::vector<std::pair<int, int>> directions = { {0, 1}, {1, 0}, {0, -1}, {-1, 0} };
-//
-//    std::queue<std::pair<int, int>> q;
-//    q.push({ startRow, startCol });
-//    map[startRow][startCol] = newChar;
-//
-//    while (!q.empty()) {
-//        auto [r, c] = q.front();
-//        q.pop();
-//
-//        for (auto [dr, dc] : directions) {
-//            int nr = r + dr;
-//            int nc = c + dc;
-//
-//            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && map[nr][nc] == originalChar) {
-//                map[nr][nc] = newChar;
-//                q.push({ nr, nc });
-//            }
-//        }
-//    }
-//}
-//
-//
-//
-//void rename_regions(std::vector<std::string>& map) {
-//    char nextChar = 'A';
-//    for (int r = 0; r < map.size(); ++r) {
-//        for (int c = 0; c < map[r].size(); ++c) {
-//            //if (isalpha(map[r][c]) && map[r][c] < 'A') {
-//                char originalChar = map[r][c];
-//                rename_region(map, r, c, nextChar++, originalChar); // char is passed
-//            //}
-//        }
-//    }
-//}
-
-
 
 std::vector<std::string> make_bigger(const std::vector<std::string>& l) {
 	std::vector<std::string> new_l;
@@ -355,8 +162,6 @@ std::vector<std::string> make_bigger(const std::vector<std::string>& l) {
 	}
 	return new_l;
 }
-
-
 
 
 int solve2(const std::vector<std::string>& l, char c) {
@@ -451,9 +256,6 @@ std::vector<std::pair<int, int>> make_bigger_shape(const std::string_view& sv, i
 }
 
 
-
-
-
 void relabelRegion(std::vector<std::string>& grid, int x, int y, char oldChar, char newChar) {
     int rows = grid.size();
     int cols = grid[0].size();
@@ -494,20 +296,10 @@ void relabelGrid(std::vector<std::string>& grid) {
                 relabelRegion(grid, i, j, oldChar, nextLabel);
                 nextLabel++;
 
-                // Ensure we don’t run out of labels
-                /*if (nextLabel > 'Z') {
-                    std::cerr << "Error: Ran out of unique labels!\n";
-                    return;
-                }*/
             }
         }
     }
 }
-
-
-
-
-
 
 
 int main() {	
@@ -580,12 +372,6 @@ int main() {
 
     std::cout << "=========================================\n";
 
-
-
-
-
-
-	//rename_regions(input, width, input.length() / width);
 
     for (int i = 'A'; i <= 'Z'; i++) {
 		int c = solve2(big, i);
