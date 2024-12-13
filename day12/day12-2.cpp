@@ -1,241 +1,225 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <functional>
+#include <chrono>
+#include <limits>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <set>
-#include <queue>
-#include <tuple>
+#include <vector>
+#include <algorithm>
 
-using namespace std;
 
-struct pair_hash {
-    template <class T1, class T2>
-    std::size_t operator()(const std::pair<T1, T2>& p) const {
-        auto hash1 = std::hash<T1>{}(p.first);
-        auto hash2 = std::hash<T2>{}(p.second);
-        return hash1 ^ (hash2 << 1); // Combine hashes
+struct IsValidPosition {
+    inline static int minX{};
+    inline static int minY{};
+    inline static int maxX{ std::numeric_limits<int>::max() };
+    inline static int maxY{ std::numeric_limits<int>::max() };
+
+    static bool check(int x, int y) {
+        return x >= minX && x <= maxX && y >= minY && y <= maxY;
     }
 };
 
 
-using Grid = vector<vector<char>>;
-using Mapping = unordered_map<pair<int, int>, char, pair_hash>;
-using Region = unordered_set<pair<int, int>, pair_hash>;
-using SymbolRegion = pair<char, Region>;
-
-const string FILE_STR = "input.txt";
-
-Grid read_lines_to_list() {
-    Grid lines;
-    ifstream file(FILE_STR);
-
-    if (!file.is_open()) {
-        cerr << "Failed to open file: " << FILE_STR << endl;
-        exit(1);
+void findAllPlantsInRegion(
+    const std::vector<std::string>& gardenMap,
+    std::vector<std::vector<bool>>& visited,
+    const char plantType,
+    int& area,
+    int& perimeter,
+    const int x,
+    const int y
+) {
+    if (
+        !IsValidPosition::check(x, y) ||
+        gardenMap.at(x).at(y) != plantType
+        ) {
+        perimeter++;
+        return;
     }
 
-    string line;
-    while (getline(file, line)) {
-        vector<char> row(line.begin(), line.end());
-        lines.push_back(row);
+    if (visited.at(x).at(y)) {
+        return;
     }
 
-    file.close();
-    return lines;
+    visited.at(x).at(y) = true;
+    area++;
+
+    findAllPlantsInRegion(gardenMap, visited, plantType, area, perimeter, x + 1, y);
+    findAllPlantsInRegion(gardenMap, visited, plantType, area, perimeter, x - 1, y);
+    findAllPlantsInRegion(gardenMap, visited, plantType, area, perimeter, x, y + 1);
+    findAllPlantsInRegion(gardenMap, visited, plantType, area, perimeter, x, y - 1);
 }
 
-tuple<int, int, Mapping> grid_to_map(const Grid& grid) {
-    int height = grid.size();
-    int width = grid[0].size();
-    Mapping mapping;
 
-    for (int row = 0; row < height; ++row) {
-        for (int col = 0; col < width; ++col) {
-            mapping[{row, col}] = grid[row][col];
-        }
-    }
+int solutionPart1(const char* inputPath) {
+    std::ifstream input(inputPath);
 
-    return { height, width, mapping };
-}
+    std::vector<std::string> gardenMap;
+    for (std::string line; std::getline(input, line); gardenMap.push_back(line));
 
-void part_one() {
-    Grid lines = read_lines_to_list();
-    auto [height, width, mapping] = grid_to_map(lines);
+    IsValidPosition::maxX = gardenMap.size() - 1;
+    IsValidPosition::maxY = gardenMap.front().length() - 1;
 
-    unordered_set<pair<int, int>, hash<pair<int, int>>> visited;
-    set<SymbolRegion> regions;
-    int answer = 0;
+    std::vector<std::vector<bool>> visited(
+        IsValidPosition::maxX + 1, std::vector<bool>(IsValidPosition::maxY + 1, false)
+    );
 
-    for (int row = 0; row < height; ++row) {
-        for (int col = 0; col < width; ++col) {
-            pair<int, int> start = { row, col };
-
-            if (visited.count(start)) {
+    int totalPriceOfFencing{};
+    for (int i{}; i < IsValidPosition::maxX + 1; ++i) {
+        for (int j{}; j < IsValidPosition::maxY + 1; ++j) {
+            if (visited.at(i).at(j)) {
                 continue;
             }
 
-            char symbol = mapping[start];
-            queue<pair<int, int>> to_visit;
-            to_visit.push(start);
-
-            Region curr_region;
-            unordered_set<pair<int, int>, hash<pair<int, int>>> visited_for_symbol;
-
-            while (!to_visit.empty()) {
-                auto curr = to_visit.front();
-                to_visit.pop();
-
-                if (visited_for_symbol.count(curr)) {
-                    continue;
-                }
-
-                visited_for_symbol.insert(curr);
-                if (mapping[curr] != symbol) {
-                    continue;
-                }
-
-                curr_region.insert(curr);
-                visited.insert(curr);
-
-                for (int i : {-1, 1}) {
-                    pair<int, int> new_coords = { curr.first + i, curr.second };
-                    if (mapping.count(new_coords) && mapping[new_coords] == symbol &&
-                        !visited_for_symbol.count(new_coords) && !visited.count(new_coords)) {
-                        to_visit.push(new_coords);
-                    }
-
-                    new_coords = { curr.first, curr.second + i };
-                    if (mapping.count(new_coords) && mapping[new_coords] == symbol &&
-                        !visited_for_symbol.count(new_coords) && !visited.count(new_coords)) {
-                        to_visit.push(new_coords);
-                    }
-                }
-            }
-
-            regions.insert({ symbol, curr_region });
+            int area{}, perimeter{};
+            findAllPlantsInRegion(gardenMap, visited, gardenMap.at(i).at(j), area, perimeter, i, j);
+            totalPriceOfFencing += area * perimeter;
         }
     }
 
-    for (const auto& [symbol, region] : regions) {
-        int area = region.size();
-        int perimeter = 0;
-
-        for (const auto& [row, col] : region) {
-            for (int i : {-1, 1}) {
-                pair<int, int> to_check = { row + i, col };
-                if (!mapping.count(to_check) || mapping[to_check] != symbol) {
-                    ++perimeter;
-                }
-
-                to_check = { row, col + i };
-                if (!mapping.count(to_check) || mapping[to_check] != symbol) {
-                    ++perimeter;
-                }
-            }
-        }
-
-        int cost = area * perimeter;
-        answer += cost;
-    }
-
-    cout << "Part 1: " << answer << endl;
+    return totalPriceOfFencing;
 }
 
-void part_two() {
-    Grid lines = read_lines_to_list();
-    auto [height, width, mapping] = grid_to_map(lines);
 
-    unordered_set<pair<int, int>, hash<pair<int, int>>> visited;
-    set<SymbolRegion> regions;
-    int answer = 0;
+struct RegionBounds {
+    int minX{ std::numeric_limits<int>::max() };
+    int minY{ std::numeric_limits<int>::max() };
+    int maxX{};
+    int maxY{};
+};
 
-    for (int row = 0; row < height; ++row) {
-        for (int col = 0; col < width; ++col) {
-            pair<int, int> start = { row, col };
 
-            if (visited.count(start)) {
+void findAllPlantsInRegion(
+    const std::vector<std::string>& gardenMap,
+    std::vector<std::vector<bool>>& visitedInGarden,
+    std::vector<std::vector<bool>>& visitedInRegion,
+    const char plantType,
+    int& area,
+    RegionBounds& regionBounds,
+    const int x,
+    const int y
+) {
+    if (
+        !IsValidPosition::check(x, y) ||
+        gardenMap.at(x).at(y) != plantType
+        ) {
+        regionBounds.minX = std::min(regionBounds.minX, x);
+        regionBounds.maxX = std::max(regionBounds.maxX, x);
+        regionBounds.minY = std::min(regionBounds.minY, y);
+        regionBounds.maxY = std::max(regionBounds.maxY, y);
+
+        return;
+    }
+
+    if (visitedInRegion.at(x).at(y)) {
+        return;
+    }
+
+    visitedInGarden.at(x).at(y) = visitedInRegion.at(x).at(y) = true;
+    area++;
+
+    findAllPlantsInRegion(gardenMap, visitedInGarden, visitedInRegion, plantType, area, regionBounds, x + 1, y);
+    findAllPlantsInRegion(gardenMap, visitedInGarden, visitedInRegion, plantType, area, regionBounds, x - 1, y);
+    findAllPlantsInRegion(gardenMap, visitedInGarden, visitedInRegion, plantType, area, regionBounds, x, y + 1);
+    findAllPlantsInRegion(gardenMap, visitedInGarden, visitedInRegion, plantType, area, regionBounds, x, y - 1);
+}
+
+
+int solutionPart2(const char* inputPath) {
+
+    int num = 0;
+
+    std::ifstream input(inputPath);
+
+    std::vector<std::string> gardenMap;
+    for (std::string line; std::getline(input, line); gardenMap.push_back(line));
+
+    IsValidPosition::maxX = gardenMap.size() - 1;
+    IsValidPosition::maxY = gardenMap.front().length() - 1;
+
+    std::vector<std::vector<bool>> visitedInGarden(
+        IsValidPosition::maxX + 1, std::vector<bool>(IsValidPosition::maxY + 1, false)
+    );
+
+    int totalPriceOfFencing{};
+    for (int i{}; i < IsValidPosition::maxX + 1; ++i) {
+        for (int j{}; j < IsValidPosition::maxY + 1; ++j) {
+            if (visitedInGarden.at(i).at(j)) {
                 continue;
             }
 
-            char symbol = mapping[start];
-            queue<pair<int, int>> to_visit;
-            to_visit.push(start);
+            int area{};
+            RegionBounds regionBounds;
+            std::vector<std::vector<bool>> visitedInRegion(
+                IsValidPosition::maxX + 1, std::vector<bool>(IsValidPosition::maxY + 1, false)
+            );
+            findAllPlantsInRegion(
+                gardenMap,
+                visitedInGarden,
+                visitedInRegion,
+                gardenMap.at(i).at(j),
+                area,
+                regionBounds,
+                i,
+                j
+            );
 
-            Region curr_region;
-            unordered_set<pair<int, int>, hash<pair<int, int>>> visited_for_symbol;
+            int numOfSides{};
+            for (int k{ regionBounds.minX }; k < regionBounds.maxX; ++k) {
+                for (int l{ regionBounds.minY }; l < regionBounds.maxY; ++l) {
+                    bool topLeft{
+                        IsValidPosition::check(k, l) &&
+                        visitedInRegion.at(k).at(l) &&
+                        gardenMap.at(k).at(l) == gardenMap.at(i).at(j)
+                    },
+                        topRight{
+                            IsValidPosition::check(k, l + 1) &&
+                            visitedInRegion.at(k).at(l + 1) &&
+                            gardenMap.at(k).at(l + 1) == gardenMap.at(i).at(j)
+                    },
+                        bottomLeft{
+                            IsValidPosition::check(k + 1, l) &&
+                            visitedInRegion.at(k + 1).at(l) &&
+                            gardenMap.at(k + 1).at(l) == gardenMap.at(i).at(j)
+                    },
+                        bottomRight{
+                            IsValidPosition::check(k + 1, l + 1) &&
+                            visitedInRegion.at(k + 1).at(l + 1) &&
+                            gardenMap.at(k + 1).at(l + 1) == gardenMap.at(i).at(j)
+                    };
 
-            while (!to_visit.empty()) {
-                auto curr = to_visit.front();
-                to_visit.pop();
+                    int numOfSamePlantsIn2x2Window{
+                        topLeft + topRight + bottomLeft + bottomRight
+                    };
 
-                if (visited_for_symbol.count(curr)) {
-                    continue;
-                }
+                    numOfSides += numOfSamePlantsIn2x2Window % 2 == 1;
 
-                visited_for_symbol.insert(curr);
-                if (mapping[curr] != symbol) {
-                    continue;
-                }
-
-                curr_region.insert(curr);
-                visited.insert(curr);
-
-                for (int i : {-1, 1}) {
-                    pair<int, int> new_coords = { curr.first + i, curr.second };
-                    if (mapping.count(new_coords) && mapping[new_coords] == symbol &&
-                        !visited_for_symbol.count(new_coords) && !visited.count(new_coords)) {
-                        to_visit.push(new_coords);
-                    }
-
-                    new_coords = { curr.first, curr.second + i };
-                    if (mapping.count(new_coords) && mapping[new_coords] == symbol &&
-                        !visited_for_symbol.count(new_coords) && !visited.count(new_coords)) {
-                        to_visit.push(new_coords);
+                    if (numOfSamePlantsIn2x2Window == 2) {
+                        numOfSides += 2 * ((topLeft && bottomRight) || (bottomLeft && topRight));
                     }
                 }
             }
 
-            regions.insert({ symbol, curr_region });
+            totalPriceOfFencing += area * numOfSides;
+            num++;
         }
     }
 
-    for (const auto& [symbol, region] : regions) {
-        int area = region.size();
-        int sides = 0;
+	std::cout << num << "\n";
 
-        for (const auto& [row, col] : region) {
-            for (const auto& [i, j, adj1, adj2] :
-                vector<tuple<int, int, pair<int, int>, pair<int, int>>>({
-                    {1, 1, {0, 1}, {1, 0}},
-                    {1, -1, {0, -1}, {1, 0}},
-                    {-1, 1, {0, 1}, {-1, 0}},
-                    {-1, -1, {0, -1}, {-1, 0}},
-                    })) {
-                pair<int, int> diag = { row + i, col + j };
-                pair<int, int> adj_1 = { row + adj1.first, col + adj1.second };
-                pair<int, int> adj_2 = { row + adj2.first, col + adj2.second };
-
-                bool is_diag_out = !mapping.count(diag) || !region.count(diag);
-                bool is_adj_1_out = !mapping.count(adj_1) || !region.count(adj_1);
-                bool is_adj_2_out = !mapping.count(adj_2) || !region.count(adj_2);
-
-                sides += (is_diag_out && is_adj_1_out && is_adj_2_out) ||
-                    (is_diag_out && !is_adj_1_out && !is_adj_2_out) ||
-                    (!is_diag_out && is_adj_1_out && is_adj_2_out);
-            }
-        }
-
-        int cost = area * sides;
-        answer += cost;
-    }
-
-    cout << "Part 2: " << answer << endl;
+    return totalPriceOfFencing;
 }
+
+
 
 int main() {
-    part_one();
-    part_two();
-    return 0;
+	const char* inputPath = "input.txt";
+	auto start = std::chrono::high_resolution_clock::now();
+	auto part1 = solutionPart1(inputPath);
+	auto part2 = solutionPart2(inputPath);
+	auto end = std::chrono::high_resolution_clock::now();
+	std::cout << "Part 1: " << part1 << '\n';
+	std::cout << "Part 2: " << part2 << '\n';
+	std::cout << "Execution time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
+	return 0;
 }

@@ -302,6 +302,135 @@ void relabelGrid(std::vector<std::string>& grid) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+using namespace std;
+
+// Directions for 4 neighbors (Up, Down, Left, Right)
+int dx[] = { -1, 1, 0, 0 };
+int dy[] = { 0, 0, -1, 1 };
+
+// Check if a cell is within grid bounds
+bool isValid(int x, int y, int n, int m) {
+    return (x >= 0 && x < n && y >= 0 && y < m);
+}
+
+// BFS to explore connected components of the same character
+void bfs(int x, int y, char target, vector<string>& grid, vector<vector<bool>>& visited, vector<pair<int, int>>& component) {
+    queue<pair<int, int>> q;
+    q.push({ x, y });
+    visited[x][y] = true;
+
+    while (!q.empty()) {
+        auto [cx, cy] = q.front();
+        q.pop();
+        component.push_back({ cx, cy });
+
+        for (int i = 0; i < 4; ++i) {
+            int nx = cx + dx[i], ny = cy + dy[i];
+            if (isValid(nx, ny, grid.size(), grid[0].size()) && !visited[nx][ny] && grid[nx][ny] == target) {
+                visited[nx][ny] = true;
+                q.push({ nx, ny });
+            }
+        }
+    }
+}
+
+// Split the grid into two rectangular parts
+void splitGrid(vector<string>& grid) {
+    int n = grid.size(), m = grid[0].size();
+
+    // Step 1: Find connected components
+    vector<vector<bool>> visited(n, vector<bool>(m, false));
+    vector<vector<pair<int, int>>> components;
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (!visited[i][j]) {
+                vector<pair<int, int>> component;
+                bfs(i, j, grid[i][j], grid, visited, component);
+                components.push_back(component);
+            }
+        }
+    }
+
+    // Step 2: Find a way to split the grid
+    // For simplicity, we'll split the grid vertically into two equal parts
+    int split_col = m / 2;
+
+    // Step 3: Apply the split
+    vector<string> grid1(n, string(split_col, '\0'));
+    vector<string> grid2(n, string(m - split_col, '\0'));
+
+    // Copy components to the two grids
+    for (const auto& component : components) {
+        bool inLeft = false, inRight = false;
+        for (const auto& [x, y] : component) {
+            if (y < split_col) inLeft = true;
+            else inRight = true;
+        }
+
+        if (inLeft && inRight) {
+            // If the component is split, place it entirely in one grid (choose left or right arbitrarily)
+            // Here we choose the left grid for simplicity
+            for (const auto& [x, y] : component) {
+                grid1[x][y] = grid[x][y];
+            }
+        }
+        else if (inLeft) {
+            // If the component is entirely in the left part
+            for (const auto& [x, y] : component) {
+                grid1[x][y] = grid[x][y];
+            }
+        }
+        else {
+            // If the component is entirely in the right part
+            for (const auto& [x, y] : component) {
+                grid2[x][y - split_col] = grid[x][y];
+            }
+        }
+    }
+
+    // Step 4: Print the two grids
+    cout << "Grid 1:" << endl;
+    for (int i = 0; i < n; ++i) {
+        cout << grid1[i] << endl;
+    }
+
+    cout << "\nGrid 2:" << endl;
+    for (int i = 0; i < n; ++i) {
+        cout << grid2[i] << endl;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main() {	
 	auto l = aoc_utils::read_lines("input.txt");
 	std::string input = "";
@@ -334,7 +463,7 @@ int main() {
 
 	// Part 2
 
-    relabelGrid(l);
+    //relabelGrid(l);
     std::string newa = "";
 	for (const auto& s : l) {
 		newa += s;
@@ -362,7 +491,7 @@ int main() {
 
 
     std::cout << "=========================================\n";
-
+	std::cout << "1\n";
 
 
 	for (const auto& s : big) {
@@ -371,21 +500,27 @@ int main() {
 
 
     std::cout << "=========================================\n";
+    std::cout << "2\n";
+
+
+
+	splitGrid(l);
+
 
 
     for (int i = 'A'; i <= 'Z'; i++) {
 		int c = solve2(big, i);
         int a = calculate_area(newa, width, input.length() / width, i);
-		std::cout << "Char: " << (char)i << " Count: " << c << " Area: " << a << '\n';
+		//std::cout << "Char: " << (char)i << " Count: " << c << " Area: " << a << '\n';
 
         p2 += c * a;
     }
 
-    for (int i = 0; i < input.length(); i++) {
+    /*for (int i = 0; i < input.length(); i++) {
         if (i % width == 0) std::cout << '\n';
         std::cout << newa[i];
     }
-    std::cout << '\n';
+    std::cout << '\n';*/
 
 
 	std::cout << "Part 1: " << p1 << '\n' << "Part 2: " << p2 << '\n';
