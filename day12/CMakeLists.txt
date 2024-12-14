@@ -16,21 +16,3 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}/test.txt
     ${CMAKE_CURRENT_BINARY_DIR}/test.txt
 )
-
-
-add_executable(day12-2 day12-2.cpp)
-target_link_libraries(day12-2 PUBLIC utils)
-
-add_custom_command(
-    TARGET day12-2 PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_CURRENT_SOURCE_DIR}/input.txt
-    ${CMAKE_CURRENT_BINARY_DIR}/input.txt
-)
-
-add_custom_command(
-    TARGET day12-2 PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_CURRENT_SOURCE_DIR}/test.txt
-    ${CMAKE_CURRENT_BINARY_DIR}/test.txt
-)
