@@ -4,73 +4,25 @@ enum DIR {
 	UP, RIGHT, DOWN, LEFT
 };
 
-void move(std::vector<std::string>& grid, int& x, int& y, int dir) {
-	switch (dir) {
-	case UP: {
-		int ny = y - 1;
-		while(grid[ny][x] == 'O') {
-			--ny;
-		}
-		if (grid[ny][x] == '#') { break; }
+void move(std::vector<std::string>& grid, int& x, int& y, int dx, int dy) {
 
-		for(int j = ny; j < y; ++j) {
-			grid[j][x] = grid[j + 1][x];
-		}
+	int nx = x + dx;
+	int ny = y + dy;
 
-		grid[y][x] = '.';
-		y--;
-
-		break;
+	while(grid[ny][nx] == 'O') {
+		nx += dx;
+		ny += dy;
 	}
-	case RIGHT: {
-		int nx = x + 1;
-		while(grid[y][nx] == 'O') {
-			++nx;
-		}
-		if (grid[y][nx] == '#') { break; }
+	if(grid[ny][nx] == '#') { return; }
 
-		for(int i = nx; i > x; --i) {
-			grid[y][i] = grid[y][i - 1];
-		}
-
-		grid[y][x] = '.';
-		x++;
-
-		break;
+	while(nx != x || ny != y) {
+		grid[ny][nx] = grid[ny - dy][nx - dx];
+		nx -= dx;
+		ny -= dy;
 	}
-	case DOWN: { 
-		int ny = y + 1;
-		while(grid[ny][x] == 'O') {
-			++ny;
-		}
-		if (grid[ny][x] == '#') { break; }
+	y += dy;
+	x += dx;
 
-		for(int j = ny; j > y; --j) {
-			grid[j][x] = grid[j - 1][x];
-		}
-
-		grid[y][x] = '.';
-		y++;
-
-		break;
-	}
-	case LEFT: { 
-		int nx = x - 1;
-		while(grid[y][nx] == 'O') {
-			--nx;
-		}
-		if (grid[y][nx] == '#') { break; }
-
-		for(int i = nx; i < x; ++i) {
-			grid[y][i] = grid[y][i + 1];
-		}		
-		
-		grid[y][x] = '.';
-		x--;
-
-		break;
-	}
-	}
 }
 
 
@@ -92,141 +44,68 @@ bool move_dir(std::vector<std::string>& grid, const int xl, const int xr, const 
 	std::cin.get();
 	return false;
 
-
-
-	/*if(grid[y + dy][xl] == '#' || grid[y + dy][xr] == '#') { return false; }
-	xly.emplace_back(std::pair<int, int>{ xl, y });
-	if (grid[y + dy][xl] == '[' && grid[y + dy][xr] == ']') { return move_dir(grid, xl, xr, y + dy, dy, xly); }
-	if (grid[y + dy][xl] == ']' && grid[y + dy][xr] == '[') { return move_dir(grid, xl - 1, xl, y + dy, dy, xly) && move_dir(grid, xr, xr + 1, y + dy, dy, xly); }
-	if (grid[y + dy][xl] == ']') { return move_dir(grid, xl - 1, xl , y + dy, dy, xly); }
-	if (grid[y + dy][xr] == '[') { return move_dir(grid, xr, xr + 1, y + dy, dy, xly); }
-	return false;*/
 }
 
-
-void move2(std::vector<std::string>& grid, int& x, int& y, int dir) {
-	switch (dir) {
-	case UP: {
+void move2(std::vector<std::string>& grid, int& x, int& y, int dx, int dy) {
+	// UP/DOWN
+	if (dy != 0) {
 		std::vector<std::pair<int, int>> xly;
-		if (grid[y - 1][x] == '#') { break; }
-		if (grid[y - 1][x] == '.') {
+		if (grid[y + dy][x] == '#') { return; }
+		if (grid[y + dy][x] == '.') {
 			grid[y][x] = '.';
-			grid[y - 1][x] = '@';
-			y--; break; }
-
-		bool mu = false;
-
-		if(grid[y - 1][x] == '[') { 
-			mu = move_dir(grid, x, x + 1, y - 1, -1, xly);
-		}else if(grid[y - 1][x] == ']') {
-			mu = move_dir(grid, x - 1, x, y - 1, -1, xly);
-		}
-
-		if (mu) {
-			std::sort(xly.begin(), xly.end(), [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
-				return a.second < b.second;
-				});
-			for(const auto& [xl, yv] : xly) {
-				
-				grid[yv][xl] = '.';
-				grid[yv][xl + 1] = '.';
-
-				grid[yv - 1][xl] = '[';
-				grid[yv - 1][xl + 1] = ']';
-				
-				//grid[yv - 1][xl] = grid[xl][yv];
-				//grid[b.second - 1][b.first + 1] = grid[b.second][b.first + 1];
-				//grid[b.second][b.first] = '.';
-				//grid[b.second][b.first + 1] = '.';
-			}
-			grid[y][x] = '.';
-			grid[y - 1][x] = '@';
-			y--;
-
-		}
-		break;
-	}
-	case RIGHT: {
-		int nx = x + 1;
-		while (grid[y][nx] == '[' || grid[y][nx] == ']') {
-			++nx;
-		}
-		if (grid[y][nx] == '#') { break; }
-
-		for (int i = nx; i > x; --i) {
-			grid[y][i] = grid[y][i - 1];
-		}
-
-		grid[y][x] = '.';
-		x++;
-
-		break;
-	}
-	case DOWN: {
-
-		std::vector<std::pair<int, int>> xly;
-		if (grid[y + 1][x] == '#') { break; }
-		if (grid[y + 1][x] == '.') {
-			grid[y][x] = '.';
-			grid[y + 1][x] = '@';
-			y++; break;
+			grid[y + dy][x] = '@';
+			y += dy;
+			return;
 		}
 
 		bool mu = false;
 
-		if (grid[y + 1][x] == '[') {
-			mu = move_dir(grid, x, x + 1, y + 1, 1, xly);
+		if (grid[y + dy][x] == '[') {
+			mu = move_dir(grid, x, x + 1, y + dy, dy, xly);
 		}
-		else if (grid[y + 1][x] == ']') {
-			mu = move_dir(grid, x - 1, x, y + 1, 1, xly);
+		else if (grid[y + dy][x] == ']') {
+			mu = move_dir(grid, x - 1, x, y + dy, dy, xly);
 		}
 
 		if (mu) {
-			std::sort(xly.begin(), xly.end(), [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
-				return a.second > b.second;
+			std::sort(xly.begin(), xly.end(), [dy](const std::pair<int, int>& a, const std::pair<int, int>& b) {
+				return (dy == -1) ? a.second < b.second : a.second > b.second;
 				});
 			for (const auto& [xl, yv] : xly) {
 
 				grid[yv][xl] = '.';
 				grid[yv][xl + 1] = '.';
 
-				grid[yv + 1][xl] = '[';
-				grid[yv + 1][xl + 1] = ']';
+				grid[yv + dy][xl] = '[';
+				grid[yv + dy][xl + 1] = ']';
 
-				/*grid[b.second + 1][b.first] = grid[b.second][b.first];
-				grid[b.second + 1][b.first + 1] = grid[b.second][b.first + 1];
-				grid[b.second][b.first] = '.';
-				grid[b.second][b.first + 1] = '.';*/
 			}
 			grid[y][x] = '.';
-			grid[y + 1][x] = '@';
-			y++;
+			grid[y + dy][x] = '@';
+			y += dy;
 
 		}
-		break;
 	}
-	case LEFT: {
-		int nx = x - 1;
+	else { // LEFT/RIGHT
+		int nx = x + dx;
+		int ny = y + dy;
+
 		while (grid[y][nx] == '[' || grid[y][nx] == ']') {
-			--nx;
+			nx += dx;
+			ny += dy;
 		}
-		if (grid[y][nx] == '#') { break; }
+		if (grid[ny][nx] == '#') { return; }
 
-		for (int i = nx; i < x; ++i) {
-			grid[y][i] = grid[y][i + 1];
+		while (nx != x || ny != y) {
+			grid[ny][nx] = grid[ny - dy][nx - dx];
+			nx -= dx;
+			ny -= dy;
 		}
-
 		grid[y][x] = '.';
-		x--;
-
-		break;
-	}
+		grid[y][x + dx] = '@';
+		x += dx;
 	}
 }
-
-
-
-
 
 
 void print_grid(const std::vector<std::string>& grid) {
@@ -298,7 +177,7 @@ int main() {
 		return 0;
 		});
 
-	// Part 1
+	// Part 1 pos
 	std::pair<int, int> pos{ 0, 0 };
 	for(int j = 0; j < grid.size(); ++j) {
 		for(int i = 0; i < grid[j].size(); ++i) {
@@ -309,7 +188,7 @@ int main() {
 		}
 	}
 
-	// Part 2
+	// Part 2 grid
 	std::vector<std::string> grid2;
 	for (const auto& s : grid) {
 		grid2.push_back("");
@@ -334,6 +213,7 @@ int main() {
 		}
 	}
 
+	// Part 2 pos
 	std::pair<int, int> pos2{ 0, 0 };
 	for (int j = 0; j < grid2.size(); ++j) {
 		for (int i = 0; i < grid2[j].size(); ++i) {
@@ -346,13 +226,21 @@ int main() {
 
 	default_timer.end(0);
 
+
+	//
+	//
+	//
+	//
+	// Part 1
+
 	default_timer.begin(1);
 
 	int p1 = 0;
 	int p2 = 0;
 
+	constexpr int dirs[4][2] = { {0, -1}, {1, 0}, {0, 1}, {-1, 0} };
 	for (const auto i : ins) {
-		move(grid, pos.first, pos.second, i);
+		move(grid, pos.first, pos.second, dirs[i][0], dirs[i][1]);
 	}
 
 	for(int j = 0; j < grid.size(); ++j) {
@@ -365,44 +253,25 @@ int main() {
 
 	default_timer.end(1);
 
+
+	//
+	//
+	//
+	// Part 2
+
 	default_timer.begin(2);
 
-
-
-	print_grid(grid2);
-	std::cout<<"POS: "<<pos2.first<<" "<<pos2.second<<'\n';
-
 	for (const auto i : ins) {
-
-		/*switch (i) {
-		case UP: { std::cout << "UP\n"; break; }
-		case RIGHT: { std::cout << "RIGHT\n"; break; }
-		case DOWN: { std::cout << "DOWN\n"; break; }
-		case LEFT: { std::cout << "LEFT\n"; break; }
-		}*/
-		move2(grid2, pos2.first, pos2.second, i);
-		//print_grid_dir(grid2, i);
-		//std::cin.get();
+		move2(grid2, pos2.first, pos2.second, dirs[i][0], dirs[i][1]);
 	}
-
-	//grid2 = { "##########", "##...[]...", "##........" };
 
 	for (int j = 0; j < grid2.size(); ++j) {
 		for (int i = 0; i < grid2[j].size(); ++i) {
 			if (grid2[j][i] == '[') {
-				//fmt::print(fmt::fg(fmt::color::green), "[");
-				
 				p2 += j * 100 + i;
 			}
-			else {
-				//fmt::print(fmt::fg(fmt::color::dim_gray), "{}", grid2[j][i]);
-			}
-			std::cout << grid2[j][i];
 		}
-		fmt::println("");
 	}
-	
-
 
 	default_timer.end(2);
 
@@ -413,4 +282,37 @@ int main() {
 
 }
 
-// 1459391 high
+//Part 1: 1471826
+//Part 2 : 1457703
+//============================== Timer Details ==============================
+//Timer ID : 0
+//Label : Input
+//Description : Read input from file and parse
+//Elapsed Time : 849.5 microseconds
+//========================================================================== =
+//============================== Timer Details ==============================
+//Timer ID : 1
+//Label : Part 1
+//Description : Compute part 1
+//Elapsed Time : 452.1 microseconds
+//========================================================================== =
+//============================== Timer Details ==============================
+//Timer ID : 2
+//Label : Part 2
+//Description : Compute part 2
+//Elapsed Time : 1073.3 microseconds
+//========================================================================== =
+//
+//
+//
+//Days: 0
+//Hours : 0
+//Minutes : 0
+//Seconds : 0
+//Milliseconds : 32
+//Ticks : 320561
+//TotalDays : 3.71019675925926E-07
+//TotalHours : 8.90447222222222E-06
+//TotalMinutes : 0.000534268333333333
+//TotalSeconds : 0.0320561
+//TotalMilliseconds : 32.0561
