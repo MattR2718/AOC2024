@@ -191,38 +191,24 @@ int main() {
 	// Part 2 grid
 	std::vector<std::string> grid2;
 	for (const auto& s : grid) {
-		grid2.push_back("");
+		std::string st = "";
 		for (const char c : s) {
-			if (c == '#') {
-				grid2.back().push_back('#');
-				grid2.back().push_back('#');
-			}
-			else if (c == '@') {
-				grid2.back().push_back('@');
-				grid2.back().push_back('.');
+			if (c == '@') {
+				st += "@.";
 			}
 			else if (c == 'O') {
-				grid2.back().push_back('[');
-				grid2.back().push_back(']');
+				st += "[]";
 			}
 			else {
-				grid2.back().push_back('.');
-				grid2.back().push_back('.');
+				st += c;
+				st += c;
 			}
-
 		}
+		grid2.emplace_back(st);
 	}
 
 	// Part 2 pos
-	std::pair<int, int> pos2{ 0, 0 };
-	for (int j = 0; j < grid2.size(); ++j) {
-		for (int i = 0; i < grid2[j].size(); ++i) {
-			if (grid2[j][i] == '@') {
-				pos2 = { i, j };
-				break;
-			}
-		}
-	}
+	std::pair<int, int> pos2{ pos.first * 2, pos.second };
 
 	default_timer.end(0);
 
@@ -288,7 +274,7 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 849.5 microseconds
+///Elapsed Time : 749.5 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
