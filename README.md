@@ -16,7 +16,7 @@
 | Day 12 | :white_check_mark: | :white_check_mark: |
 | Day 13 | :white_check_mark: | :white_check_mark: |
 | Day 14 | :white_check_mark: | :white_check_mark: |
-| Day 15 | :x: | :x: |
+| Day 15 | :white_check_mark: | :white_check_mark: |
 | Day 16 | :x: | :x: |
 | Day 17 | :x: | :x: |
 | Day 18 | :x: | :x: |
