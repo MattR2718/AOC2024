@@ -22,6 +22,12 @@ struct Entry {
 	}
 };
 
+struct EntryHash {
+	size_t operator()(const Entry& e) const {
+		return std::hash<int>()(e.x) ^ (std::hash<int>()(e.y) << 1) ^ (std::hash<int>()(e.dir) << 2);
+	}
+};
+
 std::tuple<std::pair<int, int>, std::pair<int, int>> find_start_end(const std::vector<std::string>& input) {
 	std::pair<int, int> start;
 	std::pair<int, int> end;
@@ -40,19 +46,26 @@ std::tuple<std::pair<int, int>, std::pair<int, int>> find_start_end(const std::v
 	return {start, end};
 }
 
-std::map<Entry, std::vector<std::pair<Entry, int>>> get_adjacency_list(const std::vector<std::string>& input, int x, int y, DIR dir) {
+std::unordered_map<Entry, std::vector<std::pair<Entry, int>>, EntryHash> get_adjacency_list(const std::vector<std::string>& input, int x, int y, DIR dir) {
 
-    std::map<Entry, std::vector<std::pair<Entry, int>>> adj_list;
-    std::set<Entry> visited;
+    std::unordered_map<Entry, std::vector<std::pair<Entry, int>>, EntryHash> adj_list;
+    std::unordered_set<Entry, EntryHash> visited;
 
-    std::stack<Entry> stack;
-    stack.push({ x, y, dir });
+    std::queue<Entry> queue;
+    queue.push({ x, y, dir });
 
-    while (!stack.empty()) {
-        Entry e = stack.top();
-        stack.pop();
+	static const std::vector<std::tuple<int, int, DIR>> directions = {
+			{0, -1, UP},
+			{1, 0, RIGHT},
+			{0, 1, DOWN},
+			{-1, 0, LEFT}
+	};
 
-        if (visited.find(e) != visited.end()) {
+    while (!queue.empty()) {
+        Entry e = queue.front();
+        queue.pop();
+
+        if (visited.count(e)) {
             continue;
         }
         visited.insert(e);
@@ -61,30 +74,21 @@ std::map<Entry, std::vector<std::pair<Entry, int>>> get_adjacency_list(const std
             adj_list[e] = {};
         }
 
-        static const std::vector<std::tuple<int, int, DIR>> directions = {
-            {0, -1, UP},
-            {1, 0, RIGHT},
-            {0, 1, DOWN},
-            {-1, 0, LEFT}
-        };
+        
 
         for (const auto& [dx, dy, new_dir] : directions) {
             int nx = e.x + dx;
             int ny = e.y + dy;
 
-            if (nx < 0 || ny < 0 || nx >= input[0].size() || ny >= input.size()) {
+            if (nx < 0 || ny < 0 || nx >= input[0].size() || ny >= input.size() || input[ny][nx] == '#') {
                 continue;
             }
 
-            if (input[ny][nx] == '#') {
-                continue;
-            }
-
-            Entry neighbor = { nx, ny, new_dir };
+            /*Entry neighbor = { nx, ny, new_dir };
 
             if (visited.find(neighbor) == visited.end()) {
                 stack.push(neighbor);
-            }
+            }*/
 
             int cost = (e.dir == new_dir) ? 1 : 1001;
             if ((e.dir == UP && new_dir == DOWN) || (e.dir == DOWN && new_dir == UP) ||
@@ -92,33 +96,37 @@ std::map<Entry, std::vector<std::pair<Entry, int>>> get_adjacency_list(const std
                 cost = 2001;
             }
 
+			Entry neighbor = { nx, ny, new_dir };
             adj_list[e].push_back({ neighbor, cost });
+			if (!visited.count(neighbor)) {
+				queue.push(neighbor);
+			}
         }
     }
 
     return adj_list;
 }
 
-int dijkstra(const std::map < Entry, std::vector<std::pair<Entry, int>>>& adj, const Entry& start, const std::pair<int, int>& end, std::map<Entry, int> dists, std::map<Entry, std::vector<Entry>>& paths) {
+int dijkstra(const std::unordered_map<Entry, std::vector<std::pair<Entry, int>>, EntryHash>& adj, const Entry& start, const std::pair<int, int>& end, std::map<Entry, std::vector<Entry>>& paths) {
+	std::unordered_map<Entry, int, EntryHash> dists;
+	std::priority_queue<std::pair<int, Entry>, std::vector<std::pair<int, Entry>>, std::greater<>> pq;
 
-	for(const auto& [k, v] : adj) {
+
+	for (const auto& [k, v] : adj) {
 		dists[k] = INT_MAX;
 		paths[k] = {};
 	}
 
 	dists[start] = 0;
 
-	std::priority_queue<std::pair<int, Entry>, std::vector<std::pair<int, Entry>>, std::greater<std::pair<int, Entry>>> pq;
-
 	pq.push({0, start});
 
 	while (!pq.empty()) {
-		int curr_dist = pq.top().first;
-		Entry curr_node = pq.top().second;
-		if(curr_node.x == end.first && curr_node.y == end.second) {
-			break;
-		}
+		auto [curr_dist, curr_node] = pq.top();
 		pq.pop();
+		if(curr_node.x == end.first && curr_node.y == end.second) {
+			return curr_dist;
+		}
 
 		if (curr_dist > dists[curr_node]) {
 			continue;
@@ -140,7 +148,7 @@ int dijkstra(const std::map < Entry, std::vector<std::pair<Entry, int>>>& adj, c
 			}
 		}
 	}
-	return pq.top().first;
+	return INT_MAX;
 }
 
 void find_paths(const Entry& source, Entry vertex,const std::map<Entry, std::vector<Entry>>& paths, std::set<std::pair<int, int>>& unique) {
@@ -170,7 +178,7 @@ int main() {
 	default_timer.begin(1);
 
 	std::map<Entry, std::vector<Entry>> paths;
-	int p1 = dijkstra(adj_list, {start.first, start.second, RIGHT}, end, {}, paths);
+	int p1 = dijkstra(adj_list, {start.first, start.second, RIGHT}, end, paths);
 
 	default_timer.end(1);
 
@@ -208,19 +216,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 34704.8 microseconds
+//Elapsed Time : 8794.2 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 32825.6 microseconds
+//Elapsed Time : 13467.1 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 12050.2 microseconds
+//Elapsed Time : 5934.9 microseconds
 //========================================================================== =
 //
 //
@@ -229,10 +237,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 113
-//Ticks : 1133503
-//TotalDays : 1.31192476851852E-06
-//TotalHours : 3.14861944444444E-05
-//TotalMinutes : 0.00188917166666667
-//TotalSeconds : 0.1133503
-//TotalMilliseconds : 113.3503
+//Milliseconds : 72
+//Ticks : 720500
+//TotalDays : 8.33912037037037E-07
+//TotalHours : 2.00138888888889E-05
+//TotalMinutes : 0.00120083333333333
+//TotalSeconds : 0.07205
+//TotalMilliseconds : 72.05
