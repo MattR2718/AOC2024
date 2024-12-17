@@ -1,9 +1,9 @@
 #include "utils.h"
 
 struct Registers {
-	int64_t A = 0;
-	int64_t B = 0;
-	int64_t C = 0;
+	uint64_t A = 0;
+	uint64_t B = 0;
+	uint64_t C = 0;
 
 	void print() const {
 		fmt::print("Register A: {}\n", A);
@@ -12,7 +12,7 @@ struct Registers {
 	}
 };
 
-std::string apply_instruction(Registers& registers, int opcode, int operand, int& ip) {
+int apply_instruction(Registers& registers, int opcode, int operand, int& ip) {
 	switch (opcode) {
 	case 0: { // adv (integer division)
 
@@ -108,7 +108,7 @@ std::string apply_instruction(Registers& registers, int opcode, int operand, int
 		////fmt::print("{},", out);
 
 
-		return std::to_string(out) + ",";
+		return out;
 
 		break;
 	}
@@ -162,7 +162,7 @@ std::string apply_instruction(Registers& registers, int opcode, int operand, int
 	}
 	}
 
-	return "";
+	return -1;
 }
 
 
@@ -171,34 +171,21 @@ bool tryA(uint64_t A, const std::vector<int>& expected) {
 	uint64_t C = 0;
 
 	for (size_t i = 0; i < expected.size(); i++) {
-		// Step 7: Setting B to A % 8
 		B = A % 8ull;
-
-		// Step 5: XORing B with 2
 		B = B ^ 2ull;
-
-		// Step 19: Setting C to A >> B
 		C = A >> B;
-
-		// Step 1: Dividing A by 2^3 (equivalent to A >> 3)
 		A = A >> 3ull;
-
-		// Step 11: XORing B with C
 		B = B ^ C;
-
-		// Step 5: XORing B with 7
 		B = B ^ 7ull;
-
-		// Step 12.3: Output B % 8 and compare with expected[i]
 		uint64_t output = B % 8ull;
 		//std::cout << "Step " << i + 1 << ": B = " << B << ", Output = " << output << ", Expected = " << expected[i] << "\n";
 
 		if (output != expected[i]) {
-			return false; // Mismatch: return false immediately
+			return false;
 		}
 	}
 
-	return true; // All outputs matched
+	return true;
 }
 
 
@@ -240,24 +227,69 @@ void check_option(const std::vector<int>& program, uint64_t val) {
 
 
 void generate_combinations(const std::vector<std::vector<int>>& valid_solutions, int index, int64_t current_value, const std::vector<int>& program) {
-	// Base case: if we've processed all indices, print the current combination (int64_t value)
 	if (index == valid_solutions.size()) {
 		//std::cout << "Generated value: " << current_value << std::endl;
 		check_option(program, current_value);
 		return;
 	}
 
-	// Recursive case: iterate over all valid solutions at the current index
 	for (int i : valid_solutions[index]) {
-		// For each valid value i at index, shift it to its correct position in the result
-		int64_t new_value = current_value | (static_cast<int64_t>(i) << (index * 3));  // 3 is the shift factor, adjust if needed
-		generate_combinations(valid_solutions, index + 1, new_value, program);  // Recur for the next index
+		int64_t new_value = current_value | (static_cast<int64_t>(i) << (index * 3));
+		generate_combinations(valid_solutions, index + 1, new_value, program);
 	}
 }
 
+std::vector<uint64_t> run(const std::vector<int>& prog, Registers regs) {
+	std::vector<uint64_t> res;
+	
+	for (int i = 0; i < prog.size() - 1; i += 2) {
+		auto opcode = prog[i];
+		auto operand = prog[i + 1];
+		auto o = apply_instruction(regs, opcode, operand, i);
+		if (o != -1) {
+			res.push_back(o);
+		}
+	}
+	return res;
+}
 
 
+uint64_t solve(const std::vector<int>& program, size_t i, uint64_t a) {
+	for (uint64_t k = 0; k < 8; k++) {
+		uint64_t new_a = (a << 3) | k;
 
+		Registers reg;
+		reg.A = new_a;
+		reg.B = 0;
+		reg.C = 0;
+
+		auto result = run(program, reg);
+
+		// Check if result matches remaining program
+		bool matches = true;
+		for (size_t j = 0; j < result.size() && (i + j) < program.size(); j++) {
+			if (result[j] != program[i + j]) {
+				matches = false;
+				break;
+			}
+		}
+
+		if (matches) {
+			// Matched entire program
+			if (i == 0) {
+				return new_a;
+			}
+			else {
+				auto res = solve(program, i - 1, new_a);
+				if (res != -1) {
+					return res;
+				}
+			}
+		}
+	}
+
+	return -1;
+}
 
 
 
@@ -302,8 +334,11 @@ int main() {
 	for (int i = 0; i < program.size() - 1; i += 2) {
 		auto opcode = program[i];
 		auto operand = program[i + 1];
+		auto o = apply_instruction(registers, opcode, operand, i);
+		if(o != -1){
+			p1 += std::to_string(o) + ",";
 
-		p1 += apply_instruction(registers, opcode, operand, i);
+		}
 	}
 
 	/*std::string p2_goal = "";
@@ -347,7 +382,6 @@ int main() {
 		bool found_valid_solution = false;
 
 		for (uint64_t i = 0; i < (1ull << 9ull); i++) {
-			// Fixed operator precedence with parentheses
 			if ((((((i % 8) ^ 2) ^ (i >> ((i % 8) ^ 2))) ^ 7) % 8) == goal) {
 				std::cout << "Valid: " << i << '\n';
 				valid_solutions[j].push_back(i);
@@ -367,8 +401,10 @@ int main() {
 
 
 	int64_t initial_value = 0;
-	generate_combinations(valid_solutions, 0, initial_value, program);
+	//generate_combinations(valid_solutions, 0, initial_value, program);
 
+
+	p2 = solve(program, program.size() - 1, 0);
 
 	/*for (uint64_t j = 0; j < program.size(); j++) {
 		int goal = program[j];
@@ -432,4 +468,4 @@ int main() {
 // 
 // Not:  202,340,637,622,031
 // 
-// Actu: 190,384,113,204,239
+// Actual: 190384113204239
