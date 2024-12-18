@@ -1,6 +1,7 @@
 #include "../utils/utils.h"
 
 #include <set>
+#include <iterator>
 
 #define test false
 
@@ -13,6 +14,11 @@ struct pt {
 
 	bool operator==(const pt& other) const {
 		return std::tie(x, y) == std::tie(other.x, other.y);
+	}
+
+	friend std::ostream& operator << (std::ostream& os, pt p) {
+		os << p.x << ',' << p.y;
+		return os;
 	}
 
 	std::string string() const {
@@ -34,6 +40,32 @@ std::map<pt, std::vector<pt>> get_adj(std::vector<std::string>& lines) {
 			adj[p] = v;
 		}
 	}
+	return adj;
+}
+
+std::map<pt, std::vector<pt>> get_adj(const std::vector<pt>& walls, int num_walls, int size) {
+	std::map<pt, std::vector<pt>> adj;
+	std::map<pt, bool> is_wall;
+
+	for (int k = 0; k < num_walls; k++) {
+		is_wall[walls[k]] = true;
+	}
+
+	for (int i = 0; i <= size; i++) {
+		for (int j = 0; j <= size; j++) {
+			pt current = { j, i };
+			if (is_wall[current]) continue;
+
+			std::vector<pt> neighbors;
+			if (i > 0 && !is_wall[pt{ j, i - 1 }]) neighbors.push_back({ j, i - 1 });
+			if (i < size && !is_wall[pt{ j, i + 1 }]) neighbors.push_back({ j, i + 1 });
+			if (j > 0 && !is_wall[pt{ j - 1, i }]) neighbors.push_back({ j - 1, i });
+			if (j < size && !is_wall[pt{ j + 1, i }]) neighbors.push_back({ j + 1, i });
+
+			adj[current] = neighbors;
+		}
+	}
+
 	return adj;
 }
 
@@ -98,14 +130,6 @@ int main() {
 		return pt{ x.to_number(), y.to_number() };
 		});
 
-#if test
-	auto lines = make_map(ls, 12);
-#else
-	auto lines = make_map(ls, 1024);
-#endif
-
-	auto adj = get_adj(lines);
-
     default_timer.end(0);
 
 	int p1 = 0;
@@ -116,8 +140,10 @@ int main() {
 	default_timer.begin(1);
 
 #if test
+	auto adj = get_adj(ls, 12, 6);
 	p1 = bfs(adj, pt{0, 0}, pt{6, 6});
 #else
+	auto adj = get_adj(ls, 1024, 70);
 	p1 = bfs(adj, pt{ 0, 0 }, pt{ 70, 70 });
 #endif
 
@@ -125,22 +151,28 @@ int main() {
 
 	default_timer.begin(2);
 
-	for (int i = ls.size(); i > 0; i--) {
-		auto lines2 = make_map(ls, i);
-		auto adj2 = get_adj(lines2);
-#if test
-		p2i = bfs(adj2, pt{ 0, 0 }, pt{ 6, 6 });
-#else
-		p2i = bfs(adj2, pt{ 0, 0 }, pt{ 70, 70 });
-#endif
-		if (p2i != -1) {
-			p2 = ls[i].string();;
-			break;
+	const auto pp = std::partition_point(ls.begin(), ls.end(), [&](const pt& p) {
+		std::vector<pt> v;
+		for (int i = 0; i < ls.size(); i++) {
+			if (p == ls[i]) break;
+			v.emplace_back(ls[i]);
 		}
-	}
 
+#if test
+		auto adj = get_adj(v, v.size(), 6);
+		p2i = bfs(adj, pt{ 0, 0 }, pt{ 6, 6 });
+#else
+		auto adj = get_adj(v, v.size(), 70);
+		p2i = bfs(adj, pt{ 0, 0 }, pt{ 70, 70 });
+#endif
+		return p2i != -1;
+		});
+
+	auto dis = std::distance(ls.begin(), pp) + 1;
+	
 	default_timer.end(2);
 
+	p2 = (*(pp - 1)).string();
 
     std::cout << "Part 1: " << p1 << '\n' << "Part 2: " << p2 << '\n';
 
@@ -154,19 +186,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 1634.8 microseconds
+//Elapsed Time : 489.4 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 1528.3 microseconds
+//Elapsed Time : 4659.3 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 179917.2 microseconds
+//Elapsed Time : 29828.8 microseconds
 //========================================================================== =
 //
 //
@@ -175,10 +207,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 201
-//Ticks : 2016407
-//TotalDays : 2.33380439814815E-06
-//TotalHours : 5.60113055555556E-05
-//TotalMinutes : 0.00336067833333333
-//TotalSeconds : 0.2016407
-//TotalMilliseconds : 201.6407
+//Milliseconds : 52
+//Ticks : 523018
+//TotalDays : 6.05344907407407E-07
+//TotalHours : 1.45282777777778E-05
+//TotalMinutes : 0.000871696666666667
+//TotalSeconds : 0.0523018
+//TotalMilliseconds : 52.3018
