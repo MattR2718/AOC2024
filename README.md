@@ -18,8 +18,8 @@
 | Day 14 | :white_check_mark: | :white_check_mark: |
 | Day 15 | :white_check_mark: | :white_check_mark: |
 | Day 16 | :white_check_mark: | :white_check_mark: |
-| Day 17 | :x: | :x: |
-| Day 18 | :x: | :x: |
+| Day 17 | :white_check_mark: | :white_check_mark: |
+| Day 18 | :white_check_mark: | :white_check_mark: |
 | Day 19 | :x: | :x: |
 | Day 20 | :x: | :x: |
 | Day 21 | :x: | :x: |
