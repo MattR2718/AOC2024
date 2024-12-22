@@ -62,20 +62,27 @@ int main() {
 		}
 	}
 
+	std::map<uint64_t, std::vector<uint64_t>> cache;
+	for (const auto& sn : in) {
+		uint64_t n = sn;
+		std::vector<uint64_t> numbers = { n };
+		for (int i = 0; i < 2000; i++) {
+			n = evolve(n);
+			numbers.push_back(n);
+		}
+		cache[sn] = numbers;
+	}
+
+
 	std::vector<int> num_bananas;
 	int i = 0;
 	for (const auto& option : options) {
-		std::cout << ++i << "/" << options.size() << '\n';
+		//std::cout << ++i << "/" << options.size() << '\n';
 		int temp = 0;
 
-		auto process_number = [&option](uint64_t start) {
+		auto process_number = [&option, &cache](uint64_t start) {
 			uint64_t n = start;
-			std::vector<uint64_t> numbers = { n };
-
-			for (int i = 0; i < 2000; i++) {
-				n = evolve(n);
-				numbers.push_back(n);
-			}
+			std::vector<uint64_t> numbers = cache[start];
 
 			for (size_t i = 0; i < numbers.size() - 4; i++) {
 				bool matches = true;
@@ -121,31 +128,31 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 203.1 microseconds
+//Elapsed Time : 255.5 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 1943 microseconds
+//Elapsed Time : 2323.5 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 184001835.4 microseconds
+//Elapsed Time : 131193210.3 microseconds
 //========================================================================== =
 //
 //
 //
 //Days: 0
 //Hours : 0
-//Minutes : 3
-//Seconds : 4
-//Milliseconds : 45
-//Ticks : 1840456066
-//TotalDays : 0.0021301574837963
-//TotalHours : 0.0511237796111111
-//TotalMinutes : 3.06742677666667
-//TotalSeconds : 184.0456066
-//TotalMilliseconds : 184045.6066
+//Minutes : 2
+//Seconds : 11
+//Milliseconds : 236
+//Ticks : 1312364546
+//TotalDays : 0.00151894044675926
+//TotalHours : 0.0364545707222222
+//TotalMinutes : 2.18727424333333
+//TotalSeconds : 131.2364546
+//TotalMilliseconds : 131236.4546
