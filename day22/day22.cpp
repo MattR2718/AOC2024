@@ -74,105 +74,44 @@ int main() {
 	}
 
 
-	//std::vector<int> num_bananas;
-	//int i = 0;
-	//for (const auto& option : options) {
-	//	//std::cout << ++i << "/" << options.size() << '\n';
-	//	int temp = 0;
+	std::vector<int> num_bananas;
+	int i = 0;
+	for (const auto& option : options) {
+		//std::cout << ++i << "/" << options.size() << '\n';
+		int temp = 0;
 
-	//	auto process_number = [&option, &cache](uint64_t start) {
-	//		uint64_t n = start;
-	//		std::vector<uint64_t> numbers = cache[start];
+		auto process_number = [&option, &cache](uint64_t start) {
+			uint64_t n = start;
+			std::vector<uint64_t> numbers = cache[start];
 
-	//		for (size_t i = 0; i < numbers.size() - 4; i++) {
-	//			bool matches = true;
-	//			for (int j = 0; j < 4; j++) {
-	//				int diff = (numbers[i + j + 1] % 10) - (numbers[i + j] % 10);
-	//				if (diff != option[j]) {
-	//					matches = false;
-	//					break;
-	//				}
-	//			}
-	//			if (matches) {
-	//				return numbers[i + 4] % 10;
-	//			}
-	//		}
-	//		return 0ull;
-	//	};
-
-	//	auto v = std::transform_reduce(
-	//		std::execution::par,
-	//		in.begin(),
-	//		in.end(),
-	//		0ULL,
-	//		std::plus<>(),
-	//		process_number
-	//	);
-
-	//	num_bananas.push_back(v);
-
-	//}
-
-
-	std::vector<int> num_bananas(options.size());
-	std::atomic<int> counter{ 0 };
-
-	// Create vector of indices to iterate over
-	std::vector<size_t> indices(options.size());
-	std::iota(indices.begin(), indices.end(), 0);
-
-	// Process options in parallel using indices
-	std::for_each(
-		std::execution::par,
-		indices.begin(),
-		indices.end(),
-		[&](const size_t idx) {
-			// Thread-safe counter increment for progress tracking
-			int current = ++counter;
-			std::cout << current << "/" << options.size() << '\n';
-
-			// Get the option at this index
-			auto option_it = std::next(options.begin(), idx);
-			const auto& option = *option_it;
-
-			// Process each option
-			auto process_number = [&option](uint64_t start) {
-				uint64_t n = start;
-				std::vector<uint64_t> numbers = { n };
-				for (int i = 0; i < 2000; i++) {
-					n = evolve(n);
-					numbers.push_back(n);
-				}
-				for (size_t i = 0; i < numbers.size() - 4; i++) {
-					bool matches = true;
-					for (int j = 0; j < 4; j++) {
-						int diff = (numbers[i + j + 1] % 10) - (numbers[i + j] % 10);
-						if (diff != option[j]) {
-							matches = false;
-							break;
-						}
-					}
-					if (matches) {
-						return numbers[i + 4] % 10;
+			for (size_t i = 0; i < numbers.size() - 4; i++) {
+				bool matches = true;
+				for (int j = 0; j < 4; j++) {
+					int diff = (numbers[i + j + 1] % 10) - (numbers[i + j] % 10);
+					if (diff != option[j]) {
+						matches = false;
+						break;
 					}
 				}
-				return 0ull;
-				};
+				if (matches) {
+					return numbers[i + 4] % 10;
+				}
+			}
+			return 0ull;
+		};
 
-			// Inner parallel reduction for each option
-			auto result = std::transform_reduce(
-				std::execution::unseq,
-				in.begin(),
-				in.end(),
-				0ULL,
-				std::plus<>(),
-				process_number
-			);
+		auto v = std::transform_reduce(
+			std::execution::par,
+			in.begin(),
+			in.end(),
+			0ULL,
+			std::plus<>(),
+			process_number
+		);
 
-			// Store result in pre-sized vector at correct position
-			num_bananas[idx] = result;
-		}
-	);
+		num_bananas.push_back(v);
+
+	}
 
 
 	default_timer.end(2);
