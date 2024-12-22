@@ -122,6 +122,7 @@ int main() {
 
 }
 
+// LAPTOP
 //Part 1: 15335183969
 //Part 2 : 1696
 //============================== Timer Details ==============================
@@ -156,3 +157,39 @@ int main() {
 //TotalMinutes : 2.18727424333333
 //TotalSeconds : 131.2364546
 //TotalMilliseconds : 131236.4546
+
+// DESKTOP
+//Part 1: 15335183969
+//Part 2 : 1696
+//============================== Timer Details ==============================
+//Timer ID : 0
+//Label : Input
+//Description : Read input from file and parse
+//Elapsed Time : 630 microseconds
+//========================================================================== =
+//============================== Timer Details ==============================
+//Timer ID : 1
+//Label : Part 1
+//Description : Compute part 1
+//Elapsed Time : 2725.3 microseconds
+//========================================================================== =
+//============================== Timer Details ==============================
+//Timer ID : 2
+//Label : Part 2
+//Description : Compute part 2
+//Elapsed Time : 43547679.5 microseconds
+//========================================================================== =
+//
+//
+//
+//Days: 0
+//Hours : 0
+//Minutes : 0
+//Seconds : 43
+//Milliseconds : 589
+//Ticks : 435892185
+//TotalDays : 0.00050450484375
+//TotalHours : 0.01210811625
+//TotalMinutes : 0.726486975
+//TotalSeconds : 43.5892185
+//TotalMilliseconds : 43589.2185
