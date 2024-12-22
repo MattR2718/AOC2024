@@ -18,9 +18,9 @@ char e_t_c(DIRECTION d) {
 }
 
 const std::vector<std::pair<int, int>> dirs = {
+    {-1, 0},
     {0, 1},
     {1, 0},
-    {-1, 0},
     {0, -1}
         
 };
@@ -135,7 +135,47 @@ std::unordered_map<char, std::unordered_map<char, std::string>> generate_paths_k
 }
 
 
+std::vector<std::string> generate_all_patterns(const std::string& input) {
+    // Find positions of angle brackets
+    size_t start = input.find('<');
+    size_t end = input.find('>');
 
+    // Extract parts of the string
+    std::string bracket_content = input.substr(start + 1, end - start - 1);
+    std::string suffix = input.substr(end + 1);
+
+    // Find position of second 'A'
+    size_t second_A_pos = bracket_content.find('A', bracket_content.find('A') + 1);
+
+    // Count movable carets (only those after second A)
+    int movable_carets = 0;
+    for (size_t i = second_A_pos + 1; i < bracket_content.length(); i++) {
+        if (bracket_content[i] == '^') movable_carets++;
+    }
+
+    // Generate patterns
+    std::vector<std::string> patterns;
+    for (int carets_to_move = 0; carets_to_move <= movable_carets; carets_to_move++) {
+        std::string new_bracket_content = bracket_content;
+
+        // Remove carets from right to left, but only after second A
+        int carets_moved = 0;
+        for (int i = new_bracket_content.length() - 1;
+            i > static_cast<int>(second_A_pos) && carets_moved < carets_to_move; i--) {
+            if (new_bracket_content[i] == '^') {
+                new_bracket_content.erase(i, 1);
+                carets_moved++;
+            }
+        }
+
+        // Construct new pattern
+        std::string new_pattern = "<" + new_bracket_content + ">" +
+            std::string(carets_moved, '^') + suffix;
+        patterns.push_back(new_pattern);
+    }
+
+    return patterns;
+}
 
 
 
@@ -249,7 +289,7 @@ int main() {
 
     default_timer.begin(0);
 
-	std::vector<std::string> input = aoc_utils::read_lines("input.txt");
+	std::vector<std::string> input = aoc_utils::read_lines("test.txt");
 
 	for (const auto& line : input) {
 		std::cout << line << '\n';
@@ -291,7 +331,7 @@ int main() {
 		std::cout << p2 << '\n';
     }
 
-
+	std::cout << "INITIAL PATH: " << get_path(keypad_paths, 'A', input[0], true) << '\n';
     std::cout << "PATH: " << get_path(dirpad_paths, 'A', get_path(dirpad_paths, 'A', get_path(keypad_paths, 'A', input[0], true), false), false) << '\n';
 
     char kp_s = 'A';
@@ -307,6 +347,46 @@ int main() {
     }
 
 
+    std::cout << "\n\n\n\n\n";
+
+    for (const auto& line : input) {
+
+        std::vector<std::string> first = generate_all_patterns(get_path(keypad_paths, kp_s, line, true));
+        std::vector<std::string> second;
+		for (const auto& f : first) {
+			std::vector<std::string> second_part = generate_all_patterns(get_path(dirpad_paths, dp1_s, f, false));
+			for (const auto& s : second_part) {
+				second.push_back(s);
+			}
+		}
+
+        std::vector<std::string> third;
+        for (const auto& s : second) {
+            std::vector<std::string> third_part = generate_all_patterns(get_path(dirpad_paths, dp1_s, s, false));
+            for (const auto& t : third_part) {
+                third.push_back(t);
+            }
+        }
+
+        int min = INT_MAX;
+        for (int i = 0; i < third.size(); i++) {
+			if (min == INT_MAX || third[i].length() < third[min].length()) {
+				min = i;
+			}
+        }
+
+        auto [m, n] = ctre::match<R"([a-zA-Z]*(\d+)[a-zA-Z]+)">(line);
+
+        std::cout << n.to_number() << " * " << third[min].length() << "                  " << third[min] << '\n';
+
+
+        /*std::string path = get_path(dirpad_paths, dp2_s, get_path(dirpad_paths, dp1_s, get_path(keypad_paths, kp_s, line, true), false), false);
+        auto [m, n] = ctre::match<R"([a-zA-Z]*(\d+)[a-zA-Z]+)">(line);
+
+        std::cout << n.to_number() << " * " << path.length() << "                  " << path << '\n';
+
+        p1 += n.to_number() * path.length();*/
+    }
 
 
 
