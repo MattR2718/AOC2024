@@ -11,20 +11,18 @@ typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, Vert
 // Mapping for vertex descriptors by name
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
 
-// Make sure V is consistent with boost::graph_traits
 using V = boost::graph_traits<Graph>::vertex_descriptor;
-// Define Clique using std::vector with correct allocator
+
 using Clique = std::vector<V, std::allocator<V>>;
 using Cliques = std::vector<Clique>;
 
 
 template <typename T>
 std::vector<std::vector<T>> combinations(const std::vector<T>& elements, int k) {
-	std::vector<std::vector<T>> result;
+	std::vector<std::vector<T>> res;
 	std::vector<int> indices(k);
 	int n = elements.size();
 
-	// Initialize indices
 	for (int i = 0; i < k; ++i) {
 		indices[i] = i;
 	}
@@ -34,9 +32,8 @@ std::vector<std::vector<T>> combinations(const std::vector<T>& elements, int k) 
 		for (int i : indices) {
 			subset.push_back(elements[i]);
 		}
-		result.push_back(subset);
+		res.push_back(subset);
 
-		// Generate next combination
 		int i = k - 1;
 		while (i >= 0 && indices[i] == i + n - k) {
 			--i;
@@ -49,18 +46,16 @@ std::vector<std::vector<T>> combinations(const std::vector<T>& elements, int k) 
 		}
 	}
 
-	return result;
+	return res;
 }
 
 
 struct Collector {
 	Cliques& target;
 
-	// Match the exact signature that boost::bron_kerbosch_all_cliques expects
 	template <typename VertexVector>
 	void clique(const VertexVector& clique, const Graph& g) const {
 		if (clique.size() >= 3) {
-			// Convert to std::vector for combinations function
 			std::vector<V> clique_vec(clique.begin(), clique.end());
 			auto sub_cliques = combinations(clique_vec, 3);
 			target.insert(target.end(), sub_cliques.begin(), sub_cliques.end());
@@ -68,23 +63,20 @@ struct Collector {
 	}
 };
 
-
 struct Collector2 {
 	Cliques& target;
 
-	void clique(auto const& clique, Graph const&) const {
-		for (auto& t = target.emplace_back(); Graph::vertex_descriptor v : clique)
+	template <typename VertexVector>
+	void clique(const VertexVector& clique, Graph const&) const {
+		for (auto& t = target.emplace_back(); Graph::vertex_descriptor v : clique) {
 			t.push_back(v);
+		}
 	}
 };
 
-
-
-// Add vertex or return existing one
-Vertex add_vertex_by_name(Graph& g, std::map<std::string, Vertex>& name_to_vertex, const std::string& name) {
+Vertex add_vertex(Graph& g, std::map<std::string, Vertex>& name_to_vertex, const std::string& name) {
 	auto it = name_to_vertex.find(name);
 	if (it == name_to_vertex.end()) {
-		// Create new vertex with name property
 		Vertex v = boost::add_vertex(g);
 		boost::put(boost::vertex_name, g, v, name);
 		name_to_vertex[name] = v;
@@ -93,14 +85,6 @@ Vertex add_vertex_by_name(Graph& g, std::map<std::string, Vertex>& name_to_verte
 	return it->second;
 }
 
-//int fact(int n) {
-//	int res = 1;
-//	for (int i = 1; i <= n; i++) {
-//		res *= i;
-//	}
-//	return res;
-//}
-//
 int binomial(int n, int r) {
 	if (n < 3) return 0;
 	if (r > n) return 0;
@@ -113,24 +97,12 @@ int binomial(int n, int r) {
 	}
 	return result;
 }
-//
-//int subgraphs_with_t(int n, int m) {
-//	int total = binomial(n, 3);
-//
-//	int no_t = binomial(n - m, 3);
-//
-//	return total - no_t;
-//}
-//
-//struct edge {
-//	std::string a, b;
-//};
-
-//std::ostream& operator<<(std::ostream& os, const edge& e) {
-//	return os << e.a << " " << e.b;
-//}
 
 int main() {
+
+	INITIALIZE_AOC_TIMERS();
+
+	default_timer.begin(0);
 
 	Graph g;
 	std::map<std::string, Vertex> name_to_vertex;
@@ -138,53 +110,23 @@ int main() {
 	aoc_utils::read_lines_mmap_apply<void>("input.txt", [&](const std::string& line) {
 		auto match = ctre::match<R"(([a-z]+)-([a-z]+))">(line);
 		if (match) {
-			//edge{ match.get<1>().to_string(), match.get<2>().to_string() };
-			Vertex v1 = add_vertex_by_name(g, name_to_vertex, match.get<1>().to_string());
-			Vertex v2 = add_vertex_by_name(g, name_to_vertex, match.get<2>().to_string());
+			Vertex v1 = add_vertex(g, name_to_vertex, match.get<1>().to_string());
+			Vertex v2 = add_vertex(g, name_to_vertex, match.get<2>().to_string());
 			boost::add_edge(v1, v2, g);
 		}
 
 		});
 
-	std::cout << binomial(4, 3) - binomial(3, 3) << '\n';
+	default_timer.end(0);
 
-	
-	
+	default_timer.begin(1);
+
 	int p1 = 0;
 
-	/*for (auto& e : edges) {
-		std::cout << e << '\n';
-		Vertex v1 = add_vertex_by_name(g, name_to_vertex, e.a);
-		Vertex v2 = add_vertex_by_name(g, name_to_vertex, e.b);
-		boost::add_edge(v1, v2, g);
-	}*/
-
-	/*std::cout << "Graph vertices and edges:\n";
-	boost::print_graph(g, boost::get(boost::vertex_name, g));*/
+	//boost::print_graph(g, boost::get(boost::vertex_name, g));
 
 	std::vector<Clique> cliques;
 	bron_kerbosch_all_cliques(g, Collector{ cliques }, 3);
-
-	/*for (const auto& c : cliques) {
-		std::cout << "Clique: ";
-		for (V v : c) {
-			std::cout << boost::get(boost::vertex_name, g, v) << ' ';
-		}
-		std::cout << '\n';
-	}*/
-
-	// get size of all cliques
-	/*for (const auto& c : cliques) {
-		int num_elements = c.size();
-		int tc = 0;
-		for (V v : c) {
-			auto ele = boost::get(boost::vertex_name, g, v);
-			if (ele.front() == 't') {
-				tc++;
-			}
-		}
-		p1 += subgraphs_with_t(num_elements, tc);
-	}*/
 
 	std::set<std::set<std::string>> unique_t_cliques;
 
@@ -192,7 +134,6 @@ int main() {
 		bool has_t = false;
 		std::set<std::string> clique_members;
 
-		// First pass: collect members and check for 't'
 		for (V v : c) {
 			auto ele = boost::get(boost::vertex_name, g, v);
 			clique_members.insert(ele);
@@ -201,20 +142,16 @@ int main() {
 			}
 		}
 
-		// If clique has 't', add it to our set of unique cliques
 		if (has_t) {
 			unique_t_cliques.insert(clique_members);
-
-			// Debug print
-			/*std::cout << "Found clique: ";
-			for (const auto& member : clique_members) {
-				std::cout << member << ' ';
-			}
-			std::cout << '\n';*/
 		}
 	}
 
 	p1 = unique_t_cliques.size();
+
+	default_timer.end(1);
+
+	default_timer.begin(2);
 
 	std::string p2 = "";
 
@@ -226,7 +163,6 @@ int main() {
 		return a.size() < b.size();
 		});
 
-	//std::cout << "Max clique size: " << maxC->size() << '\n';
 
 	std::vector<std::string> ele;
 	for (const auto& c : cliques2) {
@@ -237,21 +173,50 @@ int main() {
 		}
 	}
 
-	/*for (const auto& e : ele) {
-		std::cout << e << ",";
-	}
-	std::cout << '\n';*/
-	//std::lexicographical_compare(ele.begin(), ele.end(), ele.begin(), ele.end());
-
 	std::sort(ele.begin(), ele.end());
 
 	for (const auto& e : ele) {
-		//std::cout << e << '\n';
 		p2 += std::string(e) + ",";
 	}
 
+	default_timer.end(2);
+
 	std::cout << "Part 1: " << p1 << '\n' << "Part 2: " << p2.substr(0, p2.length() - 1) << '\n';
 
+	default_timer.display_all();
 }
 
-// High 2061
+//Part 1: 1269
+//Part 2 : ad, jw, kt, kz, mt, nc, nr, sb, so, tg, vs, wh, yh
+//============================== Timer Details ==============================
+//Timer ID : 0
+//Label : Input
+//Description : Read input from file and parse
+//Elapsed Time : 1471.2 microseconds
+//========================================================================== =
+//============================== Timer Details ==============================
+//Timer ID : 1
+//Label : Part 1
+//Description : Compute part 1
+//Elapsed Time : 10900.6 microseconds
+//========================================================================== =
+//============================== Timer Details ==============================
+//Timer ID : 2
+//Label : Part 2
+//Description : Compute part 2
+//Elapsed Time : 4077.9 microseconds
+//========================================================================== =
+//
+//
+//
+//Days: 0
+//Hours : 0
+//Minutes : 0
+//Seconds : 0
+//Milliseconds : 34
+//Ticks : 346182
+//TotalDays : 4.00673611111111E-07
+//TotalHours : 9.61616666666667E-06
+//TotalMinutes : 0.00057697
+//TotalSeconds : 0.0346182
+//TotalMilliseconds : 34.6182
