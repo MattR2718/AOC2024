@@ -17,6 +17,8 @@ using Clique = std::vector<V, std::allocator<V>>;
 using Cliques = std::vector<Clique>;
 
 
+// Work out all combinations of k elements from a vector
+// Returns elements sorted
 template <typename T>
 std::vector<std::vector<T>> combinations(const std::vector<T>& elements, int k) {
 	std::vector<std::vector<T>> res;
@@ -63,7 +65,7 @@ struct Collector {
 	}
 };
 
-struct Collector2 {
+struct Collector_Maxmial {
 	Cliques& target;
 
 	template <typename VertexVector>
@@ -83,19 +85,6 @@ Vertex add_vertex(Graph& g, std::map<std::string, Vertex>& name_to_vertex, const
 		return v;
 	}
 	return it->second;
-}
-
-int binomial(int n, int r) {
-	if (n < 3) return 0;
-	if (r > n) return 0;
-	if (r == 0 || r == n) return 1;
-
-	int result = 1;
-	for (int i = 0; i < r; ++i) {
-		result *= (n - i);
-		result /= (i + 1);
-	}
-	return result;
 }
 
 int main() {
@@ -126,24 +115,24 @@ int main() {
 	//boost::print_graph(g, boost::get(boost::vertex_name, g));
 
 	std::vector<Clique> cliques;
-	bron_kerbosch_all_cliques(g, Collector{ cliques }, 3);
+	bron_kerbosch_all_cliques(g, Collector_Maxmial{ cliques }, 3);
 
-	std::set<std::set<std::string>> unique_t_cliques;
+	std::set<Clique> unique_t_cliques;
 
 	for (const auto& c : cliques) {
-		bool has_t = false;
-		std::set<std::string> clique_members;
 
-		for (V v : c) {
-			auto ele = boost::get(boost::vertex_name, g, v);
-			clique_members.insert(ele);
-			if (ele.front() == 't') {
-				has_t = true;
+		auto clis = combinations(c, 3);
+		for (const auto& cli : clis) {
+			bool has_t = false;
+			for (V v : cli) {
+				auto ele = boost::get(boost::vertex_name, g, v);
+				if (ele.front() == 't') {
+					has_t = true;
+				}
 			}
-		}
-
-		if (has_t) {
-			unique_t_cliques.insert(clique_members);
+			if (has_t) {
+				unique_t_cliques.insert(cli);
+			}
 		}
 	}
 
@@ -154,29 +143,20 @@ int main() {
 	default_timer.begin(2);
 
 	std::string p2 = "";
-
-
-	std::vector<Clique> cliques2;
-	bron_kerbosch_all_cliques(g, Collector2{ cliques2 }, 3);
 	
-	auto maxC = std::max_element(cliques2.begin(), cliques2.end(), [](const auto& a, const auto& b) {
+	auto maxC = std::max_element(cliques.begin(), cliques.end(), [](const auto& a, const auto& b) {
 		return a.size() < b.size();
 		});
 
-
 	std::vector<std::string> ele;
-	for (const auto& c : cliques2) {
-		if (c.size() == maxC->size()) {
-			for (V v : c) {
-				ele.push_back(boost::get(boost::vertex_name, g, v));
-			}
-		}
+	for (V v : *maxC) {
+		ele.push_back(boost::get(boost::vertex_name, g, v));
 	}
 
 	std::sort(ele.begin(), ele.end());
 
 	for (const auto& e : ele) {
-		p2 += std::string(e) + ",";
+		p2 += e + ",";
 	}
 
 	default_timer.end(2);
@@ -192,19 +172,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 1471.2 microseconds
+//Elapsed Time : 1357.5 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 10900.6 microseconds
+//Elapsed Time : 6419.4 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 4077.9 microseconds
+//Elapsed Time : 2.6 microseconds
 //========================================================================== =
 //
 //
@@ -213,10 +193,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 34
-//Ticks : 346182
-//TotalDays : 4.00673611111111E-07
-//TotalHours : 9.61616666666667E-06
-//TotalMinutes : 0.00057697
-//TotalSeconds : 0.0346182
-//TotalMilliseconds : 34.6182
+//Milliseconds : 25
+//Ticks : 259856
+//TotalDays : 3.00759259259259E-07
+//TotalHours : 7.21822222222222E-06
+//TotalMinutes : 0.000433093333333333
+//TotalSeconds : 0.0259856
+//TotalMilliseconds : 25.9856
