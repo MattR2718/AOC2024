@@ -40,7 +40,7 @@ const std::vector<std::pair<int, int>> directions = {
     {1, 0},
     {-1, 0}
 };
-const std::string directionChars = "><v^";
+const std::string direction_chars = "^>v<";
 
 const std::vector<std::vector<char>> keypad = {
         {'7', '8', '9'},
@@ -104,15 +104,12 @@ std::pair<int, int> find_char(const std::vector<std::vector<char>>& grid, char t
     return { -1, -1 };
 }
 
-bool isValid(const std::vector<std::vector<char>>& grid, int row, int col) {
+bool is_valid(const std::vector<std::vector<char>>& grid, int row, int col) {
     return row >= 0 && row < grid.size() && col >= 0 && col < grid[0].size() && grid[row][col] != ' ';
 }
 
-std::vector<std::string> findPaths(const std::vector<std::vector<char>>& grid, char start, char end) {
+std::vector<std::string> find_paths(const std::vector<std::vector<char>>& grid, char start, char end) {
     std::vector<std::string> result;
-
-    const std::vector<std::pair<int, int>> dirs = { {-1, 0}, {0, 1}, {1, 0}, {0, -1} };
-    const std::vector<char> dirChars = { '^', '>', 'v', '<' };
 
     auto [startRow, startCol] = find_char(grid, start);
     auto [endRow, endCol] = find_char(grid, end);
@@ -144,8 +141,8 @@ std::vector<std::string> findPaths(const std::vector<std::vector<char>>& grid, c
             int newRow = current.row + dirs[i].first;
             int newCol = current.col + dirs[i].second;
 
-            if (isValid(grid, newRow, newCol)) {
-                q.push(State(newRow, newCol, current.path + dirChars[i]));
+            if (is_valid(grid, newRow, newCol)) {
+                q.push(State(newRow, newCol, current.path + direction_chars[i]));
             }
         }
     }
@@ -173,7 +170,7 @@ std::vector<std::string> find_keypad_paths(const std::vector<std::vector<char>>&
     bool isDirPad = (pad.size() == 2 && pad[0].size() == 3 &&
         (pad[0][1] == '^' || pad[1][0] == '<'));
 
-    auto paths = findPaths(pad, start, end);
+    auto paths = find_paths(pad, start, end);
 
     if (isDirPad) {
         for (auto& path : paths) {
@@ -195,7 +192,7 @@ void build_seq(std::string keys, int index, char prev_key, std::string curr_path
 }
 
 
-uint64_t shortest_seq(std::string keys, uint64_t depth, std::unordered_map<std::pair<std::string, uint64_t>, uint64_t, pair_hash>& cache, std::map<char, std::map<char, std::vector<std::string>>> paths) {
+uint64_t find_shortest_path(std::string keys, uint64_t depth, std::unordered_map<std::pair<std::string, uint64_t>, uint64_t, pair_hash>& cache, std::map<char, std::map<char, std::vector<std::string>>> paths) {
     if (depth == 0) { return keys.length(); }
 	if (cache.find({ keys, depth }) != cache.end()) { return cache[{keys, depth}]; }
     auto split_on_A = [](const std::string& str) -> std::vector<std::string> {
@@ -222,7 +219,7 @@ uint64_t shortest_seq(std::string keys, uint64_t depth, std::unordered_map<std::
 		build_seq(part, 0, 'A', "", result, paths);
         uint64_t min = UINT64_MAX;
 		for (const auto& r : result) {
-            uint64_t len = shortest_seq(r, depth - 1, cache, paths);
+            uint64_t len = find_shortest_path(r, depth - 1, cache, paths);
             min = std::min(min, len);
 			if (cache.find({ keys, depth }) == cache.end() || len < cache[{keys, depth}]) {
 				cache[{keys, depth}] = len;
@@ -243,7 +240,7 @@ uint64_t solve(std::vector<std::string> input, std::map<char, std::map<char, std
 		build_seq(key, 0, 'A', "", out, paths);
         uint64_t min = UINT64_MAX;
 		for (const auto& o : out) {
-            uint64_t len = shortest_seq(o, max_depth, cache, paths);
+            uint64_t len = find_shortest_path(o, max_depth, cache, paths);
 			min = std::min(min, len);
 		}
 		auto [m, n] = ctre::match<R"([a-zA-Z]*(\d+)[a-zA-Z]+)">(key);
