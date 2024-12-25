@@ -26,4 +26,4 @@
 | Day 22 | :white_check_mark: | :white_check_mark: |
 | Day 23 | :white_check_mark: | :white_check_mark: |
 | Day 24 | :white_check_mark: | :white_check_mark: |
-| Day 25 | :x: | :x: |
+| Day 25 | :white_check_mark: | :white_check_mark: |
