@@ -1,10 +1,10 @@
 #include "../utils/utils.h"
 
 enum DIRECTION {
-	UP,
-	RIGHT,
-	DOWN,
-	LEFT
+    UP,
+    RIGHT,
+    DOWN,
+    LEFT
 };
 
 char e_t_c(DIRECTION d) {
@@ -22,7 +22,6 @@ const std::vector<std::pair<int, int>> dirs = {
     {0, 1},
     {1, 0},
     {0, -1}
-        
 };
 
 struct Node {
@@ -40,13 +39,13 @@ const std::vector<std::pair<int, int>> directions = {
     {1, 0},
     {-1, 0}
 };
-const std::string direction_chars = "^>v<";
+const std::string_view direction_chars = "^>v<";
 
 const std::vector<std::vector<char>> keypad = {
-        {'7', '8', '9'},
-        {'4', '5', '6'},
-        {'1', '2', '3'},
-        {' ', '0', 'A'}
+    {'7', '8', '9'},
+    {'4', '5', '6'},
+    {'1', '2', '3'},
+    {' ', '0', 'A'}
 };
 
 const std::vector<std::vector<char>> dirpad = {
@@ -54,35 +53,33 @@ const std::vector<std::vector<char>> dirpad = {
     {'<', 'v', '>'}
 };
 
-
 const std::map<char, std::pair<int, int>> num_to_pos_keypad = {
-	{ '1', { 0, 2 } },
-	{ '2', { 1, 2 } },
-	{ '3', { 2, 2 } },
-	{ '4', { 0, 1 } },
-	{ '5', { 1, 1 } },
-	{ '6', { 2, 1 } },
-	{ '7', { 0, 0 } },
-	{ '8', { 1, 0 } },
-	{ '9', { 2, 0 } },
-	{ '0', { 1, 3 } },
-	{ 'A', { 2, 3 } }
+    { '1', { 0, 2 } },
+    { '2', { 1, 2 } },
+    { '3', { 2, 2 } },
+    { '4', { 0, 1 } },
+    { '5', { 1, 1 } },
+    { '6', { 2, 1 } },
+    { '7', { 0, 0 } },
+    { '8', { 1, 0 } },
+    { '9', { 2, 0 } },
+    { '0', { 1, 3 } },
+    { 'A', { 2, 3 } }
 };
 
 const std::map<char, std::pair<int, int>> num_to_pos_dirpad = {
-	{ 'A', { 2, 0 } },
-	{ '>', { 2, 1 } },
-	{ 'v', { 1, 1 } },
-	{ '<', { 0, 1 } },
-	{ '^', { 1, 0} }
+    { 'A', { 2, 0 } },
+    { '>', { 2, 1 } },
+    { 'v', { 1, 1 } },
+    { '<', { 0, 1 } },
+    { '^', { 1, 0} }
 };
 
 struct State {
     int row, col;
     std::string path;
-    State(int r, int c, std::string p) : row(r), col(c), path(p) {}
+    State(int r, int c, std::string p) : row(r), col(c), path(std::move(p)) {}
 };
-
 
 struct pair_hash {
     template <class T1, class T2>
@@ -117,7 +114,7 @@ std::vector<std::string> find_paths(const std::vector<std::vector<char>>& grid, 
     if (startRow == -1 || endRow == -1) return result;
 
     std::queue<State> q;
-    q.push(State(startRow, startCol, ""));
+    q.emplace(startRow, startCol, "");
 
     int minLength = -1;
 
@@ -142,11 +139,10 @@ std::vector<std::string> find_paths(const std::vector<std::vector<char>>& grid, 
             int newCol = current.col + dirs[i].second;
 
             if (is_valid(grid, newRow, newCol)) {
-                q.push(State(newRow, newCol, current.path + direction_chars[i]));
+                q.emplace(newRow, newCol, current.path + std::string(1, direction_chars[i]));
             }
         }
     }
-
     return result;
 }
 
@@ -301,19 +297,19 @@ int main() {
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 210 microseconds
+//Elapsed Time : 110.8 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 44241.1 microseconds
+//Elapsed Time : 44118.5 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 385530.4 microseconds
+//Elapsed Time : 409298.4 microseconds
 //========================================================================== =
 //
 //
@@ -322,10 +318,10 @@ int main() {
 //Hours : 0
 //Minutes : 0
 //Seconds : 0
-//Milliseconds : 448
-//Ticks : 4481711
-//TotalDays : 5.18716550925926E-06
-//TotalHours : 0.000124491972222222
-//TotalMinutes : 0.00746951833333333
-//TotalSeconds : 0.4481711
-//TotalMilliseconds : 448.1711
+//Milliseconds : 471
+//Ticks : 4713581
+//TotalDays : 5.45553356481481E-06
+//TotalHours : 0.000130932805555556
+//TotalMinutes : 0.00785596833333333
+//TotalSeconds : 0.4713581
+//TotalMilliseconds : 471.3581
