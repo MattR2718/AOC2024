@@ -41,6 +41,8 @@ int main() {
 
 	default_timer.begin(2);
 
+	/*
+
 	std::vector<std::vector<int>> diffs;
 	for (const auto& sn : in) {
 		std::vector<int> diff;
@@ -63,16 +65,23 @@ int main() {
 	}
 
 	std::map<uint64_t, std::vector<uint64_t>> cache;
+	std::map<uint64_t, std::vector<int8_t>> differences;
 	for (const auto& sn : in) {
 		uint64_t n = sn;
 		std::vector<uint64_t> numbers = { n };
+		std::vector<int8_t> ds;
+		int prev = sn;
 		for (int i = 0; i < 2000; i++) {
 			n = evolve(n);
 			numbers.push_back(n);
+			ds.emplace_back(n % 10 - prev % 10);
 		}
 		cache[sn] = numbers;
+		differences[sn] = ds;
 	}
 
+
+	std::cout << "NUM OPTIONS: " << options.size() << '\n';
 
 	std::vector<int> num_bananas;
 	int i = 0;
@@ -80,14 +89,15 @@ int main() {
 		//std::cout << ++i << "/" << options.size() << '\n';
 		int temp = 0;
 
-		auto process_number = [&option, &cache](uint64_t start) {
+		auto process_number = [&option, &cache, &differences](uint64_t start) {
 			uint64_t n = start;
 			std::vector<uint64_t> numbers = cache[start];
 
 			for (size_t i = 0; i < numbers.size() - 4; i++) {
 				bool matches = true;
 				for (int j = 0; j < 4; j++) {
-					int diff = (numbers[i + j + 1] % 10) - (numbers[i + j] % 10);
+					//int diff = (numbers[i + j + 1] % 10) - (numbers[i + j] % 10);
+					int diff = differences[start][i + j];
 					if (diff != option[j]) {
 						matches = false;
 						break;
@@ -110,13 +120,29 @@ int main() {
 		);
 
 		num_bananas.push_back(v);
+		std::cout << num_bananas.size() << '\n';
 
-	}
+	}*/
+
+	/*std::vector<int> num_bananas;
+	std::vector<int> diffs(20*20*20*20, 0);
+	for (const auto& sn : in) {
+		uint64_t n = sn;
+		uint64_t prev = sn;
+		for (uint64_t i = 0; i < 2000; i++) {
+			n = evolve(n);
+			int diff = n % 10 - prev % 10;
+			diffs[sn * 2000 + i] = diff;
+			prev = n;
+		}
+	}*/
 
 
 	default_timer.end(2);
 
-	int p2 = *std::max_element(num_bananas.begin(), num_bananas.end());
+	//int p2 = *std::max_element(num_bananas.begin(), num_bananas.end());
+
+	int p2 = 0;
 
 	std::cout << "Part 1: " << p1 << '\n' << "Part 2: " << p2 << '\n';
 

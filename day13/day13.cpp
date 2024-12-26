@@ -225,6 +225,11 @@ uint64_t manual_solve(Game& g) {
 
 
 int main() {
+
+    INITIALIZE_AOC_TIMERS();
+
+	default_timer.begin(0);
+
     std::vector<std::string> ls = aoc_utils::read_lines("input.txt");
 
     std::vector<Game> games;
@@ -245,13 +250,24 @@ int main() {
         }
     }
 
+	default_timer.end(0);
+
+	default_timer.begin(1);
+
     int p1 = 0;
     uint64_t p2 = 0;
 
-    for (const auto& g : games) {
+    /*for (const auto& g : games) {
         p1 += solve_game(g);
+    }*/
+
+    for (auto& g : games) {
+        p1 += manual_solve(g);
     }
 
+	default_timer.end(1);
+
+	default_timer.begin(2);
 
     for (auto& g : games) {
         g.xg += 10000000000000;
@@ -260,10 +276,12 @@ int main() {
 
     }
 
+	default_timer.end(2);
+
 
     std::cout << "Part 1: " << p1 << '\n' << "Part 2: " << p2 << '\n';
 
-    //test();
+    default_timer.display_all();
 }
 
 

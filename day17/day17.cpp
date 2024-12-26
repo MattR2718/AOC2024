@@ -383,20 +383,20 @@ int main() {
 
 		for (uint64_t i = 0; i < (1ull << 9ull); i++) {
 			if ((((((i % 8) ^ 2) ^ (i >> ((i % 8) ^ 2))) ^ 7) % 8) == goal) {
-				std::cout << "Valid: " << i << '\n';
+				//std::cout << "Valid: " << i << '\n';
 				valid_solutions[j].push_back(i);
 				found_valid_solution = true;
 			}
 			else {
-				std::cout << "NOT " << i << '\n';
+				//std::cout << "NOT " << i << '\n';
 			}
 		}
 
 		if (!found_valid_solution) {
-			std::cout << "No valid solution found for index " << j << "\n";
+			//std::cout << "No valid solution found for index " << j << "\n";
 		}
 
-		std::cout << "Index: " << j << "\n\n\n";
+		//std::cout << "Index: " << j << "\n\n\n";
 	}
 
 
