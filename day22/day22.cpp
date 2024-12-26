@@ -20,6 +20,19 @@ uint64_t evolve_2000(uint64_t n) {
 	return n;
 }
 
+int encode(int a, int b, int c, int d) {
+	return ((a + 9) << 15) | ((b + 9) << 10) | ((c + 9) << 5) | (d + 9);
+}
+
+std::vector<int> decode(int n) {
+	std::vector<int> res;
+	res.push_back((n >> 15) - 9);
+	res.push_back(((n >> 10) & 0x1F) - 9);
+	res.push_back(((n >> 5) & 0x1F) - 9);
+	res.push_back((n & 0x1F) - 9);
+	return res;
+}
+
 int main() {
 
 	INITIALIZE_AOC_TIMERS();
@@ -41,108 +54,41 @@ int main() {
 
 	default_timer.begin(2);
 
-	/*
-
-	std::vector<std::vector<int>> diffs;
-	for (const auto& sn : in) {
-		std::vector<int> diff;
-		uint64_t n = sn;
-		uint64_t prev = sn;
-		for (uint64_t i = 0; i < 2000; i++) {
-			n = evolve(n);
-			diff.push_back(n % 10 - prev % 10);
-			prev = n;
-		}
-		diffs.push_back(diff);
-	}
-
-	std::set<std::array<int, 4>> options;
-	for (const auto& diff_v : diffs) {
-		for (int i = 0; i < diff_v.size() - 4; i++) {
-			std::array<int, 4> option = { diff_v[i], diff_v[i + 1], diff_v[i + 2], diff_v[i + 3] };
-			options.insert(option);
-		}
-	}
-
-	std::map<uint64_t, std::vector<uint64_t>> cache;
-	std::map<uint64_t, std::vector<int8_t>> differences;
-	for (const auto& sn : in) {
-		uint64_t n = sn;
-		std::vector<uint64_t> numbers = { n };
-		std::vector<int8_t> ds;
-		int prev = sn;
-		for (int i = 0; i < 2000; i++) {
-			n = evolve(n);
-			numbers.push_back(n);
-			ds.emplace_back(n % 10 - prev % 10);
-		}
-		cache[sn] = numbers;
-		differences[sn] = ds;
-	}
-
-
-	std::cout << "NUM OPTIONS: " << options.size() << '\n';
-
 	std::vector<int> num_bananas;
-	int i = 0;
-	for (const auto& option : options) {
-		//std::cout << ++i << "/" << options.size() << '\n';
-		int temp = 0;
-
-		auto process_number = [&option, &cache, &differences](uint64_t start) {
-			uint64_t n = start;
-			std::vector<uint64_t> numbers = cache[start];
-
-			for (size_t i = 0; i < numbers.size() - 4; i++) {
-				bool matches = true;
-				for (int j = 0; j < 4; j++) {
-					//int diff = (numbers[i + j + 1] % 10) - (numbers[i + j] % 10);
-					int diff = differences[start][i + j];
-					if (diff != option[j]) {
-						matches = false;
-						break;
-					}
-				}
-				if (matches) {
-					return numbers[i + 4] % 10;
-				}
-			}
-			return 0ull;
-		};
-
-		auto v = std::transform_reduce(
-			std::execution::par,
-			in.begin(),
-			in.end(),
-			0ULL,
-			std::plus<>(),
-			process_number
-		);
-
-		num_bananas.push_back(v);
-		std::cout << num_bananas.size() << '\n';
-
-	}*/
-
-	/*std::vector<int> num_bananas;
-	std::vector<int> diffs(20*20*20*20, 0);
+	std::vector<int> prices;
+	std::vector<int> diffs;
+	std::vector<int> seq_outs(32 * 32 * 32 * 32 + 1, 0);
+	std::vector<int> seq_outs_input(32 * 32 * 32 * 32 + 1, 0);
 	for (const auto& sn : in) {
+		prices.clear();
+		diffs.clear();
+		prices.push_back(sn % 10);
 		uint64_t n = sn;
 		uint64_t prev = sn;
 		for (uint64_t i = 0; i < 2000; i++) {
 			n = evolve(n);
 			int diff = n % 10 - prev % 10;
-			diffs[sn * 2000 + i] = diff;
+			diffs.push_back(diff);
+			prices.push_back(n % 10);
 			prev = n;
 		}
-	}*/
+
+		for (auto& v : seq_outs_input)
+			v = 0;
+
+		for (int i = 0; i < diffs.size() - 4; i++) {
+			int idx = encode(diffs[i], diffs[i + 1], diffs[i + 2], diffs[i + 3]);
+			if(!seq_outs_input[idx])
+				seq_outs_input[idx] = prices[i + 4];
+		}
+		std::transform(std::execution::unseq, seq_outs_input.begin(), seq_outs_input.end(), seq_outs.begin(), seq_outs.begin(), std::plus<int>());
+	}
 
 
 	default_timer.end(2);
 
-	//int p2 = *std::max_element(num_bananas.begin(), num_bananas.end());
+	int p2 = *std::max_element(seq_outs.begin(), seq_outs.end());
 
-	int p2 = 0;
 
 	std::cout << "Part 1: " << p1 << '\n' << "Part 2: " << p2 << '\n';
 
@@ -150,62 +96,25 @@ int main() {
 
 }
 
-// LAPTOP
 //Part 1: 15335183969
 //Part 2 : 1696
 //============================== Timer Details ==============================
 //Timer ID : 0
 //Label : Input
 //Description : Read input from file and parse
-//Elapsed Time : 255.5 microseconds
+//Elapsed Time : 173.9 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 1
 //Label : Part 1
 //Description : Compute part 1
-//Elapsed Time : 2323.5 microseconds
+//Elapsed Time : 2163.5 microseconds
 //========================================================================== =
 //============================== Timer Details ==============================
 //Timer ID : 2
 //Label : Part 2
 //Description : Compute part 2
-//Elapsed Time : 131193210.3 microseconds
-//========================================================================== =
-//
-//
-//
-//Days: 0
-//Hours : 0
-//Minutes : 2
-//Seconds : 11
-//Milliseconds : 236
-//Ticks : 1312364546
-//TotalDays : 0.00151894044675926
-//TotalHours : 0.0364545707222222
-//TotalMinutes : 2.18727424333333
-//TotalSeconds : 131.2364546
-//TotalMilliseconds : 131236.4546
-
-// DESKTOP
-//Part 1: 15335183969
-//Part 2 : 1696
-//============================== Timer Details ==============================
-//Timer ID : 0
-//Label : Input
-//Description : Read input from file and parse
-//Elapsed Time : 630 microseconds
-//========================================================================== =
-//============================== Timer Details ==============================
-//Timer ID : 1
-//Label : Part 1
-//Description : Compute part 1
-//Elapsed Time : 2725.3 microseconds
-//========================================================================== =
-//============================== Timer Details ==============================
-//Timer ID : 2
-//Label : Part 2
-//Description : Compute part 2
-//Elapsed Time : 43547679.5 microseconds
+//Elapsed Time : 862951.5 microseconds
 //========================================================================== =
 //
 //
@@ -213,11 +122,11 @@ int main() {
 //Days: 0
 //Hours : 0
 //Minutes : 0
-//Seconds : 43
-//Milliseconds : 589
-//Ticks : 435892185
-//TotalDays : 0.00050450484375
-//TotalHours : 0.01210811625
-//TotalMinutes : 0.726486975
-//TotalSeconds : 43.5892185
-//TotalMilliseconds : 43589.2185
+//Seconds : 0
+//Milliseconds : 884
+//Ticks : 8846078
+//TotalDays : 1.02385162037037E-05
+//TotalHours : 0.000245724388888889
+//TotalMinutes : 0.0147434633333333
+//TotalSeconds : 0.8846078
+//TotalMilliseconds : 884.6078
