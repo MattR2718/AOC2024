@@ -40,6 +40,11 @@ std::ostream& operator<<(std::ostream& os, const gate& g) {
 }
 
 int main() {
+
+	INITIALIZE_AOC_TIMERS();
+
+	default_timer.begin(0);
+
 	std::map<std::string, wire> wires;
     std::vector<gate>gates;
 
@@ -107,10 +112,14 @@ int main() {
 		}
 
 	});
+
+	default_timer.end(0);
+
+	default_timer.begin(1);
 	
-	for (const auto& g : gates) {
+	/*for (const auto& g : gates) {
 		std::cout << g << '\n';
-	}
+	}*/
 
 	bool all_set = true;
 	do {
@@ -129,23 +138,27 @@ int main() {
 	} while (!all_set);
 
 
-	std::cout << "\n\n\n";
+	//std::cout << "\n\n\n";
 
-	for (const auto& g : gates) {
+	/*for (const auto& g : gates) {
 		std::cout << g << '\n';
-	}
+	}*/
 
 	uint64_t p1 = 0;
 	uint64_t i = 0;
 	for (const auto& [k, v] : wires) {
 		if (k.front() == 'z') {
-			std::cout << k << ": " << v.val << '\n';
+			//std::cout << k << ": " << v.val << '\n';
 			p1 |= (static_cast<uint64_t>(v.val) << i++);
 		}
 	}
 
+	default_timer.end(1);
 
-	uint64_t p2 = 0;
+	default_timer.begin(2);
+
+
+	//uint64_t p2 = 0;
 
 	std::vector<gate_node> gate_nodes;
 
@@ -169,12 +182,17 @@ int main() {
 		gate_nodes.push_back(gn);
 	}
 
-	draw_diagram(num_each_wire, gate_nodes);
+	default_timer.end(2);
+
+	//draw_diagram(num_each_wire, gate_nodes);
 
 	//run_example();
 
+	std::string p2 = "cqr,ncd,nfj,qnw,vkg,z15,z20,z37 (Calculated On Paper)";
+
 	std::cout << "Part 1: " << p1 << '\n' << "Part 2: " << p2 << '\n';
 
+	default_timer.display_all();
 
 }
 
