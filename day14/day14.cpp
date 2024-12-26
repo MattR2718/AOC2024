@@ -149,6 +149,18 @@ int findLargestRegion(std::vector<Robot>& robots) {
 	return largestRegion;
 }
 
+template<typename T>
+T variance(const std::vector<T>& vec) {
+	int numPoints = vec.size();
+	int var = 0;
+	T mean = std::accumulate(vec.begin(), vec.end(), 0) / numPoints;
+	for (int n = 0; n < numPoints; n++)
+	{
+		var += (vec[n] - mean) * (vec[n] - mean);
+	}
+	var /= numPoints;
+	return var;
+}
 
 int main() {
 	INITIALIZE_AOC_TIMERS();
@@ -202,24 +214,35 @@ int main() {
 
 	default_timer.begin(2);
 
-	std::vector<int> lrs;
-	for (int i = 0; i < 8055; i++) {
+	std::vector<int> xs, ys;
+	for (const Robot& r : robots) {
+		xs.push_back(r.x);
+		ys.push_back(r.y);
+	}
 
+	int n = 1;
+	int avg = 0;
+	int val = 0;
+
+	do {
 		std::for_each(std::execution::par, robots.begin(), robots.end(), [width, height](Robot& r) { r.move(width, height); });
 
-		lrs.push_back(findLargestRegion(robots));
-
-	}
-
-	int im = -1, m = INT_MIN;
-	for(int i = 0; i < lrs.size(); i++) {
-		if(m < lrs[i]) {
-			m = lrs[i];
-			im = i;
+		for (int i = 0; i < robots.size(); i++) {
+			xs[i] = robots[i].x;
+			ys[i] = robots[i].y;
 		}
-	}
 
-	p2 = im + 1;
+		int vx = variance(xs);
+		int vy = variance(ys);
+		val = (vx + vy) / 2;
+		avg *= n;
+		avg += val;
+		n++;
+		avg /= n;
+
+	} while (n < 10 || val > 400);
+
+	p2 = n - 1;
 
 	default_timer.end(2);
 
@@ -231,36 +254,36 @@ int main() {
 
 
 //Part 1: 219150360
-//Part 2 : 8053
+//Part 2: 8053
 //============================== Timer Details ==============================
-//Timer ID : 0
-//Label : Input
-//Description : Read input from file and parse
-//Elapsed Time : 604.9 microseconds
-//========================================================================== =
+//Timer ID      : 0
+//Label         : Input
+//Description   : Read input from file and parse
+//Elapsed Time  : 222.2 microseconds
+//===========================================================================
 //============================== Timer Details ==============================
-//Timer ID : 1
-//Label : Part 1
-//Description : Compute part 1
-//Elapsed Time : 6608.3 microseconds
-//========================================================================== =
+//Timer ID      : 1
+//Label         : Part 1
+//Description   : Compute part 1
+//Elapsed Time  : 1317 microseconds
+//===========================================================================
 //============================== Timer Details ==============================
-//Timer ID : 2
-//Label : Part 2
-//Description : Compute part 2
-//Elapsed Time : 21079500.8 microseconds
-//========================================================================== =
+//Timer ID      : 2
+//Label         : Part 2
+//Description   : Compute part 2
+//Elapsed Time  : 160439.7 microseconds
+//===========================================================================
 //
 //
 //
-//Days: 0
-//Hours : 0
-//Minutes : 0
-//Seconds : 21
-//Milliseconds : 121
-//Ticks : 211214724
-//TotalDays : 0.000244461486111111
-//TotalHours : 0.00586707566666667
-//TotalMinutes : 0.35202454
-//TotalSeconds : 21.1214724
-//TotalMilliseconds : 21121.4724
+//Days              : 0
+//Hours             : 0
+//Minutes           : 0
+//Seconds           : 0
+//Milliseconds      : 177
+//Ticks             : 1771395
+//TotalDays         : 2.05022569444444E-06
+//TotalHours        : 4.92054166666667E-05
+//TotalMinutes      : 0.002952325
+//TotalSeconds      : 0.1771395
+//TotalMilliseconds : 177.1395

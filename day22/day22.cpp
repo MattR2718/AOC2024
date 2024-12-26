@@ -54,7 +54,6 @@ int main() {
 
 	default_timer.begin(2);
 
-	std::vector<int> num_bananas;
 	std::vector<int> prices;
 	std::vector<int> diffs;
 	std::vector<int> seq_outs(32 * 32 * 32 * 32 + 1, 0);
